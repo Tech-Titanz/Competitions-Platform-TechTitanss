@@ -2,22 +2,15 @@ import click, pytest, sys, csv,os
 from datetime import datetime
 from flask import Flask
 from flask.cli import with_appcontext, AppGroup
-
 from App.database import db, get_migrate
-from App.models import User, competition, Result, Participant
+from App.models import User, Competition, Result, Participant
 from App.main import create_app
+from App.controllers.commands import DeleteCompetitionCommand,ImportCompetitionsCommand,ImportResultsCommand, UpdateCompetitionCommand,CreateCompetitionsCommand,ViewLeaderboardCommand, ViewProfileCommand
 from App.controllers import (
     create_user, 
     get_all_users_json, 
     get_all_users, 
     initialize, 
-    create_competition,   
-    get_competition,
-    import_competitions,
-    import_results,
-    update_competition,
-    delete_competition,
-   
 )
 
 # This commands file allow you to create convenient CLI commands for testing controllers
@@ -35,64 +28,79 @@ def init():
 User Commands
 '''
 
-#Competition Commands
-competition_cli = AppGroup('competition', help='Competition commands')
+#Competition Commands Changed to use Command.py classes and methods
+competition_cli = AppGroup('competition', help='Competition-related commands')
 
-@app.cli.command("create-competition", help = 'Creates a Competition')
+@competition_cli.command("create", help="Create a new competition")
 @click.argument('name')
 @click.argument('date')
-def create_competition_cli(name, date):
-    competition = create_competition(name, date)
-    click.echo(f'Competition created: {competition}')
-     
-@app.cli.command("update-competition")
-@click.argument('competition_id')
+@click.argument('description', default="")
+@click.argument('participants_amount', default=0, type=int)
+@click.argument('duration', default=0, type=int)
+def create_competition_cli(name, date, description, participants_amount, duration):
+    command = CreateCompetitionsCommand(name, description, date, participants_amount, duration)
+    error, competition = command.execute()
+    if error:
+        click.echo(f"Error: {error}")
+    else:
+        click.echo(f"Competition created: ID={competition.id}, Name={competition.name}")
+
+
+@competition_cli.command("update", help="Update an existing competition")
+@click.argument('competition_id', type=int)
 @click.argument('new_name')
 @click.argument('new_date')
 def update_competition_cli(competition_id, new_name, new_date):
-    competition = update_competition(competition_id, new_name, new_date)
-    if competition is None:
-        click.echo(f'Failed to Update')
+    command = UpdateCompetitionCommand(competition_id, new_name, new_date)
+    error, competition = command.execute()
+    if error:
+        click.echo(f"Error: {error}")
     else:
-        print(f'Competition updated successfully: {competition}')
+        click.echo(f"Competition updated: ID={competition.id}, New Name={competition.name}, New Date={competition.date}")
 
-@app.cli.command("delete-competition")
-@click.argument('competition_id')
+@competition_cli.command("delete", help="Delete a competition by ID")
+@click.argument('competition_id', type=int)
 def delete_competition_cli(competition_id):
-    success = delete_competition(competition_id)
-    if not success:
-        click.echo(f'Failed to delete competition with ID {competition_id}. Please ensure the competition exists.')
+    command = DeleteCompetitionCommand(competition_id)
+    error, message = command.execute()
+    if error:
+        click.echo(f"Error: {error}")
     else:
-        print(f'Competition with ID {competition_id} deleted successfully.')
+        click.echo(message)
 
-
-@app.cli.command("view-competitions", help = "View competitions")
+@competition_cli.command("view", help="View all competitions")
 def view_competitions_cli():
-    competitions = get_competition()
+    competitions = Competition.query.all()
     if competitions:
         for competition in competitions:
             click.echo(f"ID: {competition.id}, Name: {competition.name}, Date: {competition.date}")
     else:
-        click.echo("No competitions found")
-  
-    
-@app.cli.command("import-competitions", help="Import competitions CSV file")
-@click.argument('competition_file', default='competitions.csv')
+        click.echo("No competitions found.")
+
+@competition_cli.command("import", help="Import competitions from a CSV file")
+@click.argument('competition_file')
 def import_competitions_cli(competition_file):
-    import_competitions(competition_file)
-        
-@app.cli.command("import-results", help="Import results CSV file")
-@click.argument('results_file', default='results.csv')
+    command = ImportCompetitionsCommand(competition_file)
+    try:
+        command.execute()
+        click.echo("Competitions imported successfully.")
+    except Exception as e:
+        click.echo(f"An error occurred: {e}")
+
+@competition_cli.command("import-results", help="Import results from a CSV file")
+@click.argument('results_file')
 def import_results_cli(results_file):
-    import_results(results_file)
-    
-    
-    
-#Print results function in wsgi cause of errors
-@app.cli.command("view-results", help="Print results from the results CSV file with competition names")
-@click.argument('results-file', default='results.csv')
-@click.argument('competitions-file', default='competitions.csv')
-def print_results(results_file, competitions_file):
+    command = ImportResultsCommand(results_file)
+    try:
+        command.execute()
+        click.echo("Results imported successfully.")
+    except Exception as e:
+        click.echo(f"An error occurred: {e}")
+
+@competition_cli.command("view-results", help="View results from competitions")
+@click.argument('results_file')
+@click.argument('competitions_file')
+def view_results_cli(results_file, competitions_file):
     try:
         competition_mapping = {}
         with open(competitions_file, newline='') as csvfile:
@@ -101,7 +109,7 @@ def print_results(results_file, competitions_file):
                 competition_id = row['id']
                 competition_name = row['name']
                 competition_mapping[competition_id] = competition_name
-                
+
         with open(results_file, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             click.echo("Participant Name, Score, Competition Name")
@@ -110,14 +118,66 @@ def print_results(results_file, competitions_file):
                 participant_name = row['participant_name']
                 score = row['score']
                 competition_id = row['competition_id']
-                
+
                 competition_name = competition_mapping.get(competition_id, "Unknown Competition")
                 click.echo(f'{participant_name}, {score}, {competition_name}')
-   
     except FileNotFoundError as e:
         click.echo(f"File not found: {e.filename}")
     except Exception as e:
         click.echo(f"An error occurred: {e}")
+        
+ 
+@app.cli.command("calculate-aggregate-ranking", help="Calculate Aggregate Profile Ranking")
+@click.option("--competition-id", type=int, help="Filter by specific competition ID")
+@click.option("--output-file", type=str, help="Path to save the ranking results (optional)")
+def calculate_aggregate_ranking_cli(competition_id=None, output_file=None):
+    """
+    Command to calculate aggregate profile ranking.
+    """
+    try:
+        if competition_id:
+            competitions = Competition.query.filter_by(id=competition_id).all()
+        else:
+            competitions = Competition.query.all()
+
+        if not competitions:
+            click.echo("No competitions found matching the criteria.")
+            return
+
+     
+        rankings = []
+        for comp in competitions:
+            results = Result.query.filter_by(competition_id=comp.id).all()  # Assuming a `Result` model exists
+            for result in results:
+                user_id = result.user_id
+                score = result.score
+                existing = next((r for r in rankings if r['user_id'] == user_id), None)
+                if existing:
+                    existing['total_score'] += score
+                else:
+                    rankings.append({"user_id": user_id, "total_score": score})
+
+        rankings.sort(key=lambda x: x["total_score"], reverse=True)
+
+        click.echo("Aggregate Profile Rankings:")
+        for rank, entry in enumerate(rankings, start=1):
+            user = User.query.get(entry['user_id'])
+            click.echo(f"{rank}. {user.username} - {entry['total_score']} points")  # Replace `username` if needed
+
+        if output_file:
+            with open(output_file, "w") as f:
+                for rank, entry in enumerate(rankings, start=1):
+                    user = User.query.get(entry['user_id'])
+                    f.write(f"{rank}. {user.username} - {entry['total_score']} points\n")
+            click.echo(f"Rankings saved to {output_file}")
+
+    except FileNotFoundError as e:
+        click.echo(f"File not found: {e.filename}")
+    except Exception as e:
+        click.echo(f"An error occurred: {e}")
+
+
+app.cli.add_command(competition_cli)
 
 
 # Commands can be organized using groups
@@ -135,7 +195,6 @@ def create_user_command(username, password):
     print(f'{username} created!')
 
 # this command will be : flask user create bob bobpass
-
 @user_cli.command("list", help="Lists users in the database")
 @click.argument("format", default="string")
 def list_user_command(format):
@@ -167,11 +226,11 @@ def user_tests_command(type):
 @click.argument("type", default="all")
 def competition_tests_command(type):
     if type == "unit":
-        sys.exit(pytest.main(["-k", "test_competition.py"]))  # Run only unit tests
+        # Run only unit tests for competitions
+        sys.exit(pytest.main(["App/tests/test_competition.py"]))
     elif type == "int":
-        sys.exit(pytest.main(["-k", "test_competition_integration.py"]))  # Run only integration tests
+        # Run only integration tests for competitions
+        sys.exit(pytest.main(["App/tests/test_competition_integration.py"]))
     else:
-        sys.exit(pytest.main(["-k", "test_competition"]))  # Run all tests related to competition
-    
-
-app.cli.add_command(test)
+        # Run all tests related to competition
+        sys.exit(pytest.main(["App/tests"]))

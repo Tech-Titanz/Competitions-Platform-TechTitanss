@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from App.models import User, Competition,Result
 from App.database import db
 from datetime import datetime
+from dateutil import parser
 import csv
 
 
@@ -35,37 +36,50 @@ class LoginUserCommand(Command):
         return None
 
 
-class CreateCompetitionsCommand(Command):
-    def __init__(self,name,description,date,participants_amount,duration):
+class CreateCompetitionsCommand:
+    def __init__(self, name, description, date, participants_amount, duration):
         self.name = name
         self.description = description
         self.date = date
         self.participants_amount = participants_amount
         self.duration = duration
-        
+
+    def parse_date(self, date_str):
+        """ Try parsing the date with multiple formats or with dateutil parser """
+        try:
+            # Try using dateutil's parser for flexible date handling
+            return parser.parse(date_str).date()
+        except ValueError:
+            raise ValueError(f"Invalid date format: '{date_str}'. Expected formats: 'YYYY-MM-DD', 'MM/DD/YYYY'.")
+
     def execute(self):
         try:
-            date = datetime.strptime(self.date, "%Y-%m-%d").date()
-        except ValueError:
-            return f'Invalid date format: {self.date}. Please use YYYY-MM-DD.', None
+            # Check if a competition with the same name already exists
+            existing_competition = Competition.query.filter_by(name=self.name).first()
+            if existing_competition:
+                return f"Competition with name '{self.name}' already exists.", None
 
-        competition = Competition.query.filter_by(name=self.name).first()
-        if competition:
-            return f'Competition with the name "{self.name}" already exists.', None
-        
-        competition = Competition(
-            name = self.name,
-            description= self.description,
-            date= date,
-            participants_amount= self.participants_amount,
-            duration = self.duration
-        )
-        
-        db.session.add(competition)
-        db.session.commit()
-        
-        return competition
-    
+            # Parse the date using the flexible date parser
+            parsed_date = self.parse_date(self.date)
+
+            # Create a new competition
+            competition = Competition(
+                name=self.name,
+                description=self.description,
+                date=parsed_date,
+                participants_amount=self.participants_amount,
+                duration=self.duration,
+            )
+            db.session.add(competition)
+            db.session.commit()
+            return None, competition
+        except ValueError as e:
+            # Handle value errors specifically for date parsing
+            return str(e), None
+        except Exception as e:
+            db.session.rollback()
+            return str(e), None
+
     
 class UpdateCompetitionCommand(Command):
     def __init__(self, competition_id, new_name, new_date):

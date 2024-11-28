@@ -3,11 +3,11 @@ from datetime import datetime
 
 class Competition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
-    date = db.Column(db.Date)
+    name = db.Column(db.String, nullable=False)
+    date = db.Column(db.Date,nullable=False)
     description = db.Column(db.String(255))
-    participants_amount = db.Column(db.Integer)
-    duration = db.Column(db.Date)
+    participants_amount = db.Column(db.Integer,nullable=False)
+    duration = db.Column(db.Integer,nullable=False)
     participants = db.relationship('Participant', backref='competition', lazy=True)
     results = db.relationship('Result', backref='competition', lazy=True)
     

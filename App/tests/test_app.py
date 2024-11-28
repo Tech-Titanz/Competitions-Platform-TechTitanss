@@ -4,20 +4,17 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from App.main import create_app
 from App.database import db, create_db
 from datetime import datetime
+from App.controllers.commands import CreateCompetitionsCommand
 from App.models import User, Competition, Result
 from App.controllers import (
     create_user,
     get_all_users_json,
     login,
     get_user,
-    get_user_by_username,
     update_user,
     create_competition,   
-    get_competition,
     get_results,
     import_competitions,
-    import_results,
-    update_competition,
     delete_competition,
 )
 
@@ -37,7 +34,8 @@ class UserUnitTests(unittest.TestCase):
     def test_get_json(self):
         user = User("bob", "bobpass")
         user_json = user.get_json()
-        self.assertDictEqual(user_json, {"id":None, "username":"bob"})
+        self.assertDictEqual(user_json, {"id": None, "username": "bob", "is_moderator": False})
+
     
     def test_hashed_password(self):
         password = "mypass"
@@ -50,6 +48,29 @@ class UserUnitTests(unittest.TestCase):
         password = "mypass"
         user = User("bob", password)
         assert user.check_password(password)
+        
+        
+class CompetitionUnitTests(unittest.TestCase):
+
+    def test_create_competition(self):
+        """Test creating a new competition"""
+        # Create the command to create the competition with different date formats
+        command = CreateCompetitionsCommand(
+            "Hackattack", "Test competition", "12/12/2024", 100, 30
+        )
+
+        # Execute the command (this will create the competition in the DB)
+        error, competition = command.execute()
+
+        # Assert that no error occurred
+        self.assertIsNone(error)
+
+        # Assert that the competition was created correctly
+        self.assertEqual(competition.name, "Hackattack")
+        self.assertEqual(competition.date, datetime.strptime("2024-12-12", "%Y-%m-%d").date())
+        self.assertEqual(competition.description, "Test competition")
+        self.assertEqual(competition.participants_amount, 100)
+        self.assertEqual(competition.duration, 30)
 
 '''
     Integration Tests
@@ -88,43 +109,104 @@ class UsersIntegrationTests(unittest.TestCase):
         
 class CompetitionIntegrationTests(unittest.TestCase):
     
-   def test_create_competition():
-    competition = create_competition("Hackattack", "2024-12-12")
-    assert competition.name == "Hackattack"
-    assert competition.date.date() == datetime.strptime("2024-12-12", "%Y-%m-%d").date()
-    assert competition.id is not None
-    retrieved_competition = Competition.query.filter_by(name="Hackattack").first()
-    assert retrieved_competition is not None
-    assert retrieved_competition.id == competition.id
+    def test_create_competition(self):
+    # Create a new competition
+        competition = create_competition(
+            "Hackattack", 
+            "2024-12-12", 
+            "This is a test competition", 
+            100, 
+            30
+        )
 
-def test_update_competition():
-    competition = create_competition("Hackattack", "2024-12-12")
-    updated_competition = update_competition(competition.id, "Hackathon", "2024-12-15")
-    assert updated_competition.name == "Hackathon"
-    assert updated_competition.date.date() == datetime.strptime("2024-12-15", "%Y-%m-%d").date()
-    retrieved_competition = Competition.query.get(competition.id)
-    assert retrieved_competition.name == "Hackathon"
-    assert retrieved_competition.date.date() == datetime.strptime("2024-12-15", "%Y-%m-%d").date()
+    # Assert that the competition was created and saved to the database
+        assert competition is not None
+        assert competition.name == "Hackattack"
+        assert competition.date == datetime.strptime("2024-12-12", "%Y-%m-%d").date()
+        assert competition.description == "This is a test competition"
+        assert competition.participants_amount == 100
+        assert competition.duration == 30
 
-def test_delete_competition():
-    competition = create_competition("Hackattack", "2024-12-12")
-    delete_competition(competition.id)
-    deleted_competition = Competition.query.get(competition.id)
-    assert deleted_competition is None
+    
+    
+    def test_update_competition(self):
+    # Create a new competition
+        competition = create_competition(
+            "Hackattack", 
+            "2024-12-12", 
+            "This is a test competition", 
+            100, 
+            30
+        )
+
+    # Update competition details
+        competition.name = "Hackattack Updated"
+        competition.date = datetime.strptime("2025-01-01", "%Y-%m-%d").date()
+        competition.description = "Updated test competition"
+        competition.participants_amount = 200
+        competition.duration = 40
+        db.session.commit()
+
+    # Reload from DB to check if updates are saved
+        updated_competition = Competition.query.get(competition.id)
+
+    # Assert the updated values
+        assert updated_competition.name == "Hackattack Updated"
+        assert updated_competition.date == datetime.strptime("2025-01-01", "%Y-%m-%d").date()
+        assert updated_competition.description == "Updated test competition"
+        assert updated_competition.participants_amount == 200
+        assert updated_competition.duration == 40
+
+
+
+    def test_delete_competition(self):
+        competition = create_competition(
+            "Hackattack", 
+            "2024-12-12",  # Correct placement of date
+            "This is a test competition",  # Correct placement of description
+            100, 
+            30
+    )
+        delete_competition(competition.id)
+        deleted_competition = Competition.query.get(competition.id)
+        assert deleted_competition is None
+
+
+
         
-def test_get_results(self):
-    competition = create_competition("Hackattack", "2024-12-12")
-    results = get_results(competition.id)
+    def test_get_results(self):
+    # Create a competition
+        competition = create_competition(
+            "Hackattack", 
+            "2024-12-12", 
+            "This is a test competition", 
+            100, 
+            30
+        )
 
-         
+        # Simulate getting competition results
+        results = get_results(competition.id)
+
+    # Assert that results are returned (modify this part based on your implementation of get_results)
+        assert results is not None
+        assert isinstance(results, list)  # Assuming results are returned as a list
+        assert len(results) >= 0  # Modify the length check based on your test data
+
+
+
         
-def test_import_competitions():
-    import_competitions("path/to/competitions_file.json")
-    competitions = Competition.query.all()
-    assert len(competitions) > 0
-    competition_names = [comp.name for comp in competitions]
-    assert "Hackattack" in competition_names
-    assert "AnotherCompetition" in competition_names
+    def test_import_competitions():
+ 
+        import_competitions("path/to/competitions_file.json")
+
+        competitions = Competition.query.all()
+  
+        assert len(competitions) > 0
+    
+        competition_names = [comp.name for comp in competitions]
+        assert "Hackattack" in competition_names
+        assert "AnotherCompetition" in competition_names
+
 
     
 

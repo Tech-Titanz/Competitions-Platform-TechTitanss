@@ -4,12 +4,12 @@ from App.database import db
 from datetime import datetime
 import csv
     
-def create_competition(name, date):
+def create_competition(name, date,description,participants_amount,duration):
     
     date = datetime.strptime(date, "%Y-%m-%d").date()
     comp = Competition.query.filter_by(name=name).first()
     if not comp:  
-        comp = Competition(name=name, date=date)
+        comp = Competition(name=name, date=date,description=description,participants_amount=participants_amount,duration=duration)
         db.session.add(comp)
         db.session.commit()
     return comp
@@ -168,7 +168,6 @@ def get_leaderboard():
     return leaderboard, None
 
 
-#testing commit
 
   
         
