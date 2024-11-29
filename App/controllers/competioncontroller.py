@@ -167,6 +167,16 @@ def get_leaderboard():
         })
     return leaderboard, None
 
+def get_results(competition_id):
+    try:
+        # Query results associated with the competition ID
+        results = results.query.filter_by(competition_id=competition_id).all()
+        if not results:
+            return []
+        return results
+    except Exception as e:
+        return str(e), None
+
 
 
   

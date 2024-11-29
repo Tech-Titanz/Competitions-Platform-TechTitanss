@@ -113,7 +113,7 @@ class DeleteCompetitionCommand(Command):
 
         db.session.delete(competition)
         db.session.commit()
-        return None, f'Competition with ID {self.competition_id} deleted.'
+        return None, f'Competition with ID {self.competition_id} has been deleted.'
 
 
 class GetCompetitionDetailsCommand(Command):
@@ -133,29 +133,49 @@ class ImportCompetitionsCommand(Command):
 
     def execute(self):
         try:
-            with open(self.competition_file, newline='') as csvfile:
+            # Open the CSV file
+            with open(self.competition_file, newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
+                
+                # Iterate over each row in the CSV
                 for row in reader:
                     competition_name = row['name']
                     competition_date_str = row['date']
+                    competition_description = row['description']
+                    participants_amount = int(row['participants_amount'])
+                    duration = int(row['duration'])
+                    
                     try:
+                        # Parse the date from string to datetime object
                         competition_date = datetime.strptime(competition_date_str, '%Y-%m-%d').date()
                     except ValueError:
                         print(f"Error parsing date {competition_date_str} for competition {competition_name}")
                         continue
                     
+                    # Check if the competition already exists
                     competition = Competition.query.filter_by(name=competition_name).first()
+                    
                     if not competition:
-                        competition = Competition(name=competition_name, date=competition_date)
+                        # Create a new competition if it does not exist
+                        competition = Competition(
+                            name=competition_name,
+                            date=competition_date,
+                            description=competition_description,
+                            participants_amount=participants_amount,
+                            duration=duration
+                        )
+                        # Add and commit the competition to the database
                         db.session.add(competition)
                         db.session.commit()
+                    else:
+                        print(f"Competition with name '{competition_name}' already exists. Skipping...")
                         
             print("Competitions imported successfully.")
+        
         except FileNotFoundError as e:
             print(f"File not found: {e.filename}")
         except Exception as e:
             print(f"An error occurred: {e}")
-
 
 class ImportResultsCommand(Command):
     def __init__(self, results_file):

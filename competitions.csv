@@ -1,8 +1,9 @@
-id,name,date
-1,Code Challenge ,2023-08-12
-2,Python Mastery,2023-09-05
-3,Hackathon Fall,2023-10-10
-4,AI Innovation Sprint,2023-11-01
-5,Full Stack Frenzy,2023-12-03
-6,Blockchain Battle,2024-01-15
-7,Cloud Computing Clash,2024-02-20
+id,name,date,description,participants_amount,duration
+1,Code Challenge,2023-08-12,A competition to test coding skills,100,30
+2,Python Mastery,2023-09-05,Master Python by solving challenges,120,40
+3,Hackathon Fall,2023-10-10,Fall-themed hackathon event,150,48
+4,AI Innovation Sprint,2023-11-01,AI-focused competition,200,24
+5,Full Stack Frenzy,2023-12-03,Build full-stack projects from scratch,180,36
+6,Blockchain Battle,2024-01-15,Blockchain and crypto-themed challenge,250,50
+7,Cloud Computing Clash,2024-02-20,Cloud computing innovation contest,220,60
+
