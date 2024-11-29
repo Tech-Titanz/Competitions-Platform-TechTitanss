@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block title %}Import Competition Results{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Import Competition Results</h1>
+            <div class="form-group">
+            <label for="results_file">Upload Results File</label>
+            <input type="file" class="form-control" id="results_file" name="results_file" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Import Results</button>
+    </form>
+
+    <hr>
+
+    <!-- Display the competition results with edit and remove options -->
+    <h2>Current Results</h2>
+    {% if results %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Competition Name</th>
+                    <th>Participant</th>
+                    <th>Previous Rank</th>
+                    <th>Current Rank</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td>{{ result.competition_name }}</td>
+                        <td>{{ result.participant_name }}</td>
+                        <td>{{ result.Previous Rank }}</td>
+                        <td>{{ result.Current Rank }}</td>
+                        <td>{{ result.score }}</td>
+                        <td>
+                            <a href="{{ url_for('competition_views.edit_result', result_id=result.id) }}" class="btn btn-warning">Edit</a>
+                            <a href="{{ url_for('competition_views.remove_result', result_id=result.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this result?')">Remove</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results have been imported yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

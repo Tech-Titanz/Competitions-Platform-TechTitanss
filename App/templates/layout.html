@@ -13,22 +13,58 @@
 
   </head>
   <body>
-    <header class="header">
-      <h1>Coding Competition Platform</h1>
-    </header>
-    <nav class="navbar">
-      <a href="student.html">View Profile</a>
-      <a href="leaderboard.html">Leaderboard</a>
-      <a href="competition.html">Competition Details</a>
-      <a href="moderator.html">Moderator Tools</a>
-      <a href="signup.html">Login</a>
-    </nav>
-    <main>
-      <section class="welcome">
-        <h2>Welcome to the Platform</h2>
-        <p>Select a feature from the navigation bar to get started.</p>
-      </section>
-    </main>
+    
+      <nav class="purple">
+          <div class="nav-wrapper">
+              <a href="#!" class="brand-logo center">{% block page %}{% endblock %}</a>
+              <ul id="nav-mobile" class="left">
+                  <li><a href="/">Home</a></li>
+                  <li><a href="/users">Users Jinja</a></li>
+                  {% if 'user' in session %}
+                    <li><a href="/identify">Identify</a></li>
+                  {% endif %}
+                  <li><a href="/static/users">Users JS</a></li>
+              </ul>
+              {% if 'user' in session %}
+              <ul id="nav-mobile" class="right">
+                <li><a href="/logout">Logout</a></li>
+              </ul>
+              {% else %}
+              <form class="right navbar-form" method="POST" action="/login" style="display: flex; flex-wrap: nowrap; align-items: center; margin-right: 10px;">
+                  <div class="input-field" style="margin-right: 10px;">
+                      <input placeholder="username" value="bob" name="username" type="text" class="validate" required>
+                      <label for="username">username</label>
+                  </div>
+                  <div class="input-field" style="margin-right: 10px;">
+                      <input placeholder="password"value="bobpass" name="password" type="password" class="validate" required>
+                      <label for="password">Password</label>
+                  </div>
+                  <button type="submit" class="btn waves-effect waves-light">Login</button>
+              </form>
+              {% endif %}
+              
+          </div>
+      </nav>
+      <style>
+          .navbar-form label {
+              color: white !important;
+          }
+      </style>
+
+    <div class="container" id="content">{% block content %}{% endblock %}</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+       M.AutoInit();
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              {% for message in messages %}
+              M.toast({html: '{{message}}'})
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+       
+    </script>
   </body>
-  </html>
-  
+</html>

@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+
 {% block title %}Competition Platform{% endblock %}
 {% block page %}Competition Platform{% endblock %}
 
@@ -6,20 +7,27 @@
 
 {% block content %}
 <div class="container">
-    <h1>Welcome to the Competition Platform</h1>
-    {% if is_authenticated %}
-        <p> Welcome {{current_user.username}}! Ready to </p>
+    <h1 class="center-align">Welcome to the Competition Platform</h1>
+    {% if 'user' in session %}
+        <p> Welcome <strong>{{ session['user'] }}</strong>! Ready to start?</p>
         <div class="row">
-            {% if session['user_type'] == 'moderator'%}
-            <a href="homepage/create_competition.html" class="btn grey darken-1">Create Competition</a>
-            <a href="homepage/import_results.html" class="btn grey lighten-1">Import Competition Results</a>
+            {% if session['user_type'] == 'moderator' %}
+                <div class="col s12 m6">
+                    <a href="homepage/create_competition.html" class="btn grey darken-1 waves-effect waves-light full-width">Create Competition</a>
+                </div>
+                <div class="col s12 m6">
+                    <a href="homepage/import_results.html" class="btn grey lighten-1 waves-effect waves-light full-width">Import Competition Results</a>
+                </div>
             {% endif %}
-            <a href="homepage/competitions_list.html" class="btn grey darken-1">Competition List</a>
-            <a href="homepage/leaderboard.html" class="btn grey lighten-1">Leaderboard</a>
+            <div class="col s12 m6">
+                <a href="homepage/competitions_list.html" class="btn grey darken-1 waves-effect waves-light full-width">Competition List</a>
+            </div>
+            <div class="col s12 m6">
+                <a href="homepage/leaderboard.html" class="btn grey lighten-1 waves-effect waves-light full-width">Leaderboard</a>
+            </div>
         </div>
     {% else %}
-        <p>Please login to access the competition platform features</p>
+        <p class="center-align">Please login to access the competition platform features.</p>
     {% endif %}
-
 </div>
 {% endblock %}
