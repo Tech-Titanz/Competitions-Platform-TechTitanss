@@ -80,5 +80,3 @@ def view_profile(user_id):
         return jsonify({"message": "User not found"}), 404
 
     return jsonify(user.get_json()), 200
-
-    
