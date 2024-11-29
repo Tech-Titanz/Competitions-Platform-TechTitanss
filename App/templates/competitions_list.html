@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}Competition List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Competition List</h1>
+    
+    <!-- Check if there are any competitions -->
+    {% if competitions %}
+        <ul>
+            {% for competition in competitions %}
+            <li>
+                {{ competition.name }} - {{ competition.date }}</li>
+                Time: {{ competition.time}}<br>
+                Venue: {{ competition.venue}}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No competitions found.</p>
+    {% endif %}
+</div>
+{% endblock %}
