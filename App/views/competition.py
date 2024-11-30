@@ -174,14 +174,13 @@ def leaderboard_endpoint():
     ]
     return jsonify({'leaderboard': leaderboard}), 200
 
+
 @competition_views.route('/api/competitions/join', methods=['POST'])
 def join_competition():
-    # Get the data from the request
     data = request.get_json()
     username = data.get('username')
     competition_id = data.get('competition_id')
 
-    # Fetch the user and competition from the database
     user = User.query.filter_by(username=username).first()
     competition = Competition.query.get(competition_id)
 
@@ -190,16 +189,15 @@ def join_competition():
     if not competition:
         return jsonify({"error": f"Competition with ID {competition_id} not found."}), 404
 
-    # Check if the competition is full
+    
     if len(competition.participants) >= competition.participants_amount:
         return jsonify({"error": "Competition is full."}), 400
 
-    # Check if the user has already joined the competition
+  
     existing_participant = Participant.query.filter_by(user_id=user.id, competition_id=competition.id).first()
     if existing_participant:
         return jsonify({"error": "User already joined this competition."}), 400
 
-    # Create a new participant
     new_participant = Participant(name=user.username, user_id=user.id, competition_id=competition.id)
     db.session.add(new_participant)
     db.session.commit()

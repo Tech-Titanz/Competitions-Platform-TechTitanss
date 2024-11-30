@@ -73,9 +73,37 @@ def view_competitions_cli():
     competitions = Competition.query.all()
     if competitions:
         for competition in competitions:
-            click.echo(f"ID: {competition.id}, Name: {competition.name}, Date: {competition.date}")
+            click.echo(f"ID: {competition.id}, Name: {competition.name}, Date: {competition.date}, Duration: {competition.duration}, Description: {competition.description}, Amount: {competition.participants_amount}")
     else:
         click.echo("No competitions found.")
+        
+        
+@competition_cli.command("view-comp", help="View participants for Competitions")
+@click.argument("competition_id", type=int)
+def view_competition_participant(competition_id):
+    # Create the command object
+    command = ViewCompetitionParticipantsCommand(competition_id)
+    
+    # Execute the command
+    error, participants = command.execute()
+    
+    # Handle errors
+    if error:
+        click.echo(error)
+        return
+    
+    # Display the participants
+    click.echo(f"Participants in Competition {competition_id}:")
+    for participant in participants:
+        user = User.query.get(participant.user_id)  # Fetch the associated user details
+        
+        # Check if the user exists
+        if user:
+            click.echo(f"Name: {user.username}, ID: {user.id}")
+        else:
+            click.echo(f"Warning: No user found for participant ID {participant.id} (user_id: {participant.user_id}).")
+
+    
         
 @competition_cli.command("view_leaderboard", help="View the leaderboard of all users")
 def view_leaderboard_cli():
@@ -89,21 +117,6 @@ def view_leaderboard_cli():
         for user in users:
             click.echo(f"Username: {user.username}, Rank: {user.rank}")
         
-@competition_cli.command("view_profile", help="View the profile of a user")
-@click.argument('user_id', type=int)
-def view_profile_cli(user_id):
-    command = ViewProfileCommand(user_id)
-    profile_details = command.execute()
-
-    if not profile_details:
-        click.echo(f"Error: User with ID {user_id} not found.")
-    else:
-        click.echo(f"Username: {profile_details['username']}")
-        click.echo(f"Rank: {profile_details['rank']}")
-        click.echo("Competitions:")
-        for competition in profile_details['competitions']:
-            click.echo(f"  - {competition['competition_name']}, Score: {competition['score']}, Date: {competition['date']}")
-
 
 @competition_cli.command("import", help="Import competitions, participants, and results from CSV files")
 @click.argument('competition_file')
@@ -184,6 +197,9 @@ def calculate_aggregate_ranking_cli(competition_id=None, output_file=None):
 
     except Exception as e:
         click.echo(f"An error occurred: {e}")
+        
+        
+
 
 
 
@@ -204,23 +220,26 @@ user_cli = AppGroup('user', help='User object commands')
 #     create_user(username, password)
 #     print(f'{username} created!')
 
+
+
+
 # this command will be to create a new admin/moderator user
 @user_cli.command("create", help="Create a user")
-@click.argument("username")
-@click.argument("password")
+@click.argument("username",default="rob")
+@click.argument("password",default = "robpass")
 @click.option('--moderator', is_flag=True, default=False, help="Create as a moderator")
 def create_user_command(username, password, moderator):
     # Use the moderator flag to set the user role
     is_moderator = moderator
-    
     command = RegisterUserCommand(username, password, is_moderator=is_moderator)
-    error, new_user = command.execute()
-    
-    if error:
-        click.echo(f"Error: {error}")
-    else:
-        role = "moderator" if is_moderator else "regular user"
-        click.echo(f"User {new_user.username} created as {role}.")
+   
+    try:
+       new_user = command.execute()
+       role = "moderator" if is_moderator else "regular user"
+       click.echo(f"User {new_user.username} created as {role}.")
+    except Exception as error:
+        click.echo(f"Error:{error}")       
+  
 
 @user_cli.command("list", help="Lists users in the database")
 @click.argument("format", default="string")
@@ -230,17 +249,32 @@ def list_user_command(format):
     else:
         print(get_all_users_json())
         
+@user_cli.command("view_profile", help="View the profile of a user")
+@click.argument('user_id', type=int)
+def view_profile_cli(user_id):
+    command = ViewProfileCommand(user_id)
+    profile_details = command.execute()
+
+    if not profile_details:
+        click.echo(f"Error: User with ID {user_id} not found.")
+    else:
+        click.echo(f"Username: {profile_details['username']}")
+        click.echo(f"Rank: {profile_details['rank']}")
+        click.echo("Competitions:")
+        for competition in profile_details['competitions']:
+            click.echo(f"  - {competition['competition_name']}, Score: {competition['score']}, Date: {competition['date']}")
+
+        
 @user_cli.command("join", help="Join a competition")
 @click.argument("username")
 @click.argument("competition_id", type=int)
 def join_competition_command(username, competition_id):
-    # Fetch the user from the database
+  
     user = User.query.filter_by(username=username).first()
     if not user:
         click.echo(f"Error: User '{username}' not found.")
         return
 
-    # Create and execute the join competition command
     command = JoinCompetitionCommand(user.id, competition_id)
     error, competition = command.execute()
 

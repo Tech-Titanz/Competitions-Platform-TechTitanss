@@ -1,23 +1,24 @@
-name,competition_id
-Alice Johnson,1
-Bob Smith,1
-Charlie Adams,1
-Dana Williams,1
-Eve Green,2
-Frank Harris,2
-Grace Turner,2
-Hank Thompson,3
-Ivy Brown,3
-Jack Lee,3
-Karen Davis,4
-Leo White,4
-Mona King,4
-Nick Young,5
-Olivia Parker,5
-Paul Miller,5
-Quincy James,6
-Rachel Scott,6
-Steve Collins,6
-Tina Wright,7
-Uma Nelson,7
-Victor Long,7
+name,user_id,competition_id
+Alice Johnson,2,1
+Bob Smith,3,1
+Charlie Adams,4,1
+Dana Williams,5,1
+Eve Green,6,2
+Frank Harris,7,2
+Grace Turner,8,2
+Hank Thompson,9,3
+Ivy Brown,10,3
+Jack Lee,11,3
+Karen Davis,12,4
+Leo White,13,4
+Mona King,14,4
+Nick Young,15,5
+Olivia Parker,16,5
+Paul Miller,17,5
+Quincy James,18,6
+Rachel Scott,19,6
+Steve Collins,20,6
+Tina Wright,21,7
+Uma Nelson,22,7
+Victor Long,23,7
+

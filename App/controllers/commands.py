@@ -8,7 +8,6 @@ import csv
 
 from App.models.competition import Participant
 
-
 class Command(ABC):
     @abstractmethod
     def execute(self):
@@ -16,13 +15,14 @@ class Command(ABC):
     
     
 class RegisterUserCommand(Command):
-    def __init__(self, username, password):
+    def __init__(self, username, password, is_moderator=False):
         self.username = username
         self.password = password
-        
+        self.is_moderator = is_moderator
 
     def execute(self):
-        newuser = User(username=self.username, password=self.password)
+        newuser = User(username=self.username,password=self.password, is_moderator=self.is_moderator)
+        newuser.set_password(self.password)  
         db.session.add(newuser)
         db.session.commit()
         return newuser
@@ -133,11 +133,10 @@ class ImportCompetitionsCommand(Command):
 
     def execute(self):
         try:
-            # Open the CSV file
+       
             with open(self.competition_file, newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
-                
-                # Iterate over each row in the CSV
+             
                 for row in reader:
                     competition_name = row['name']
                     competition_date_str = row['date']
@@ -146,17 +145,16 @@ class ImportCompetitionsCommand(Command):
                     duration = int(row['duration'])
                     
                     try:
-                        # Parse the date from string to datetime object
                         competition_date = datetime.strptime(competition_date_str, '%Y-%m-%d').date()
                     except ValueError:
                         print(f"Error parsing date {competition_date_str} for competition {competition_name}")
                         continue
                     
-                    # Check if the competition already exists
+                   
                     competition = Competition.query.filter_by(name=competition_name).first()
                     
                     if not competition:
-                        # Create a new competition if it does not exist
+                        
                         competition = Competition(
                             name=competition_name,
                             date=competition_date,
@@ -164,7 +162,7 @@ class ImportCompetitionsCommand(Command):
                             participants_amount=participants_amount,
                             duration=duration
                         )
-                        # Add and commit the competition to the database
+                        
                         db.session.add(competition)
                         db.session.commit()
                     else:
@@ -186,30 +184,41 @@ class ImportParticipantsCommand(Command):
         try:
             with open(self.participants_file, newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
-                
+
                 for row in reader:
                     participant_name = row['name']
+                    user_id = row['user_id']
                     competition_id = row['competition_id']
-                    
+
                     competition = Competition.query.get(competition_id)
                     if not competition:
                         print(f"Competition with ID {competition_id} not found!")
                         continue
-                    
-                    # Create a new participant if they don't exist
-                    participant = Participant.query.filter_by(name=participant_name, competition_id=competition_id).first()
+
+                    user = User.query.get(user_id)
+                    if not user:
+                        password = "defaultpassword"  
+                        is_moderator = False  
+                        register_user_command = RegisterUserCommand(participant_name, password, is_moderator)
+                        user = register_user_command.execute()  # This will create the user
+                        print(f"User '{participant_name}' created successfully.")
+
+                    participant = Participant.query.filter_by(name=participant_name, user_id=user.id, competition_id=competition_id).first()
                     if not participant:
-                        participant = Participant(name=participant_name, competition_id=competition_id)
+                        participant = Participant(name=participant_name, user_id=user.id, competition_id=competition_id)
                         db.session.add(participant)
                         db.session.commit()
+                        print(f"Participant '{participant_name}' added to competition ID {competition_id}.")
                     else:
                         print(f"Participant '{participant_name}' already exists for competition ID {competition_id}. Skipping...")
-            
+
             print("Participants imported successfully.")
+
         except FileNotFoundError as e:
             print(f"File not found: {e.filename}")
         except Exception as e:
             print(f"An error occurred: {e}")
+
 
 class ImportResultsCommand(Command):
     def __init__(self, results_file):
@@ -256,7 +265,6 @@ class AddCompetitionResultsCommand(Command):
     def execute(self):
         competition = Competition.query.get(self.competition_id)
         if competition:
-            # Assuming self.results is a list of Result objects
             for result in self.results:
                 db.session.add(result)
             db.session.commit()
@@ -295,6 +303,7 @@ class JoinCompetitionCommand:
         
         new_participant = Participant(name=user.username, user_id=user.id, competition_id=competition.id)
         db.session.add(new_participant)
+        competition.participants_amount -=1
         db.session.commit()
 
         return None, competition
