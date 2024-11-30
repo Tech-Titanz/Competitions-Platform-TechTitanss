@@ -6,6 +6,7 @@ class User(db.Model):
     username =  db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String(120), nullable=False)
     is_moderator = db.Column(db.Boolean, default=False)
+    
 
     def __init__(self, username, password, is_moderator =False):
         self.username = username

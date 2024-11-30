@@ -5,7 +5,7 @@ from flask.cli import with_appcontext, AppGroup
 from App.database import db, get_migrate
 from App.models import User, Competition, Result, Participant
 from App.main import create_app
-from App.controllers.commands import DeleteCompetitionCommand,ImportCompetitionsCommand,ImportResultsCommand, UpdateCompetitionCommand,CreateCompetitionsCommand,ViewLeaderboardCommand, ViewProfileCommand
+from App.controllers.commands import *
 from App.controllers import (
     create_user, 
     get_all_users_json, 
@@ -76,24 +76,58 @@ def view_competitions_cli():
             click.echo(f"ID: {competition.id}, Name: {competition.name}, Date: {competition.date}")
     else:
         click.echo("No competitions found.")
+        
+@competition_cli.command("view_leaderboard", help="View the leaderboard of all users")
+def view_leaderboard_cli():
+    command = ViewLeaderboardCommand()
+    users = command.execute()
 
-@competition_cli.command("import", help="Import competitions from a CSV file")
+    if not users:
+        click.echo("No users found.")
+    else:
+        click.echo("Leaderboard:")
+        for user in users:
+            click.echo(f"Username: {user.username}, Rank: {user.rank}")
+        
+@competition_cli.command("view_profile", help="View the profile of a user")
+@click.argument('user_id', type=int)
+def view_profile_cli(user_id):
+    command = ViewProfileCommand(user_id)
+    profile_details = command.execute()
+
+    if not profile_details:
+        click.echo(f"Error: User with ID {user_id} not found.")
+    else:
+        click.echo(f"Username: {profile_details['username']}")
+        click.echo(f"Rank: {profile_details['rank']}")
+        click.echo("Competitions:")
+        for competition in profile_details['competitions']:
+            click.echo(f"  - {competition['competition_name']}, Score: {competition['score']}, Date: {competition['date']}")
+
+
+@competition_cli.command("import", help="Import competitions, participants, and results from CSV files")
 @click.argument('competition_file')
-def import_competitions_cli(competition_file):
-    command = ImportCompetitionsCommand(competition_file)
-    try:
-        command.execute()
-        click.echo("Competitions imported successfully.")
-    except Exception as e:
-        click.echo(f"An error occurred: {e}")
-
-@competition_cli.command("import-results", help="Import results from a CSV file")
+@click.argument('participant_file')
 @click.argument('results_file')
-def import_results_cli(results_file):
-    command = ImportResultsCommand(results_file)
+def import_all_cli(competition_file, participant_file, results_file):
     try:
-        command.execute()
-        click.echo("Results imported successfully.")
+        # Import Competitions
+        click.echo("Importing competitions...")
+        competition_command = ImportCompetitionsCommand(competition_file)
+        competition_command.execute()
+        
+        # Import Participants
+        click.echo("Importing participants...")
+        participant_command = ImportParticipantsCommand(participant_file)
+        participant_command.execute()
+        
+        # Import Results
+        click.echo("Importing results...")
+        results_command = ImportResultsCommand(results_file)
+        results_command.execute()
+        
+        click.echo("All data imported successfully!")
+        
     except Exception as e:
         click.echo(f"An error occurred: {e}")
 
@@ -127,54 +161,30 @@ def view_results_cli(results_file, competitions_file):
         click.echo(f"An error occurred: {e}")
         
  
-@app.cli.command("calculate-aggregate-ranking", help="Calculate Aggregate Profile Ranking")
-@click.option("--competition-id", type=int, help="Filter by specific competition ID")
+@app.cli.command("calculate-aggregate", help="Calculate Aggregate Profile Ranking")
+@click.option("--competition-id", type=int, help="Filter by specific competition ID (optional)")
 @click.option("--output-file", type=str, help="Path to save the ranking results (optional)")
 def calculate_aggregate_ranking_cli(competition_id=None, output_file=None):
-    """
-    Command to calculate aggregate profile ranking.
-    """
     try:
-        if competition_id:
-            competitions = Competition.query.filter_by(id=competition_id).all()
-        else:
-            competitions = Competition.query.all()
+      
+        command = AggregateProfileCommand(competition_id=competition_id)
 
-        if not competitions:
-            click.echo("No competitions found matching the criteria.")
-            return
-
-     
-        rankings = []
-        for comp in competitions:
-            results = Result.query.filter_by(competition_id=comp.id).all()  # Assuming a `Result` model exists
-            for result in results:
-                user_id = result.user_id
-                score = result.score
-                existing = next((r for r in rankings if r['user_id'] == user_id), None)
-                if existing:
-                    existing['total_score'] += score
-                else:
-                    rankings.append({"user_id": user_id, "total_score": score})
-
-        rankings.sort(key=lambda x: x["total_score"], reverse=True)
-
-        click.echo("Aggregate Profile Rankings:")
-        for rank, entry in enumerate(rankings, start=1):
-            user = User.query.get(entry['user_id'])
-            click.echo(f"{rank}. {user.username} - {entry['total_score']} points")  # Replace `username` if needed
+        rankings = command.execute()
 
         if output_file:
             with open(output_file, "w") as f:
-                for rank, entry in enumerate(rankings, start=1):
-                    user = User.query.get(entry['user_id'])
-                    f.write(f"{rank}. {user.username} - {entry['total_score']} points\n")
+                for rank, (participant_name, total_score, competitions_participated) in enumerate(rankings, start=1):
+                    f.write(f"Rank {rank}: {participant_name} - Total Score: {total_score}, Competitions: {competitions_participated}\n")
             click.echo(f"Rankings saved to {output_file}")
 
-    except FileNotFoundError as e:
-        click.echo(f"File not found: {e.filename}")
+        # Display the rankings in the console
+        click.echo("Aggregate Profile Rankings:")
+        for rank, (participant_name, total_score, competitions_participated) in enumerate(rankings, start=1):
+            click.echo(f"Rank {rank}: {participant_name} - Total Score: {total_score}, Competitions: {competitions_participated}")
+
     except Exception as e:
         click.echo(f"An error occurred: {e}")
+
 
 
 app.cli.add_command(competition_cli)
@@ -187,14 +197,31 @@ app.cli.add_command(competition_cli)
 user_cli = AppGroup('user', help='User object commands') 
 
 # Then define the command and any parameters and annotate it with the group (@)
-@user_cli.command("create", help="Creates a user")
-@click.argument("username", default="rob")
-@click.argument("password", default="robpass")
-def create_user_command(username, password):
-    create_user(username, password)
-    print(f'{username} created!')
+# @user_cli.command("create", help="Creates a user")
+# @click.argument("username", default="rob")
+# @click.argument("password", default="robpass")
+# def create_user_command(username, password):
+#     create_user(username, password)
+#     print(f'{username} created!')
 
-# this command will be : flask user create bob bobpass
+# this command will be to create a new admin/moderator user
+@user_cli.command("create", help="Create a user")
+@click.argument("username")
+@click.argument("password")
+@click.option('--moderator', is_flag=True, default=False, help="Create as a moderator")
+def create_user_command(username, password, moderator):
+    # Use the moderator flag to set the user role
+    is_moderator = moderator
+    
+    command = RegisterUserCommand(username, password, is_moderator=is_moderator)
+    error, new_user = command.execute()
+    
+    if error:
+        click.echo(f"Error: {error}")
+    else:
+        role = "moderator" if is_moderator else "regular user"
+        click.echo(f"User {new_user.username} created as {role}.")
+
 @user_cli.command("list", help="Lists users in the database")
 @click.argument("format", default="string")
 def list_user_command(format):
@@ -202,6 +229,25 @@ def list_user_command(format):
         print(get_all_users())
     else:
         print(get_all_users_json())
+        
+@user_cli.command("join", help="Join a competition")
+@click.argument("username")
+@click.argument("competition_id", type=int)
+def join_competition_command(username, competition_id):
+    # Fetch the user from the database
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        click.echo(f"Error: User '{username}' not found.")
+        return
+
+    # Create and execute the join competition command
+    command = JoinCompetitionCommand(user.id, competition_id)
+    error, competition = command.execute()
+
+    if error:
+        click.echo(f"Error: {error}")
+    else:
+        click.echo(f"User {user.username} successfully joined the competition '{competition.name}'!")
 
 app.cli.add_command(user_cli) # add the group to the cli
 

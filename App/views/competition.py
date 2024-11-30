@@ -7,7 +7,7 @@ from App.controllers import (
 from App.models import Competition, Result, CompetitionController
 from App.database import db
 from datetime import datetime
-from App.controllers.commands import CreateCompetitionsCommand, ViewLeaderboardCommand, ViewProfileCommand
+from App.controllers.commands import *
 from App.models.user import User, UserController
 
 competition_views = Blueprint('competition_views', __name__, template_folder='../templates')
@@ -16,6 +16,7 @@ competition_views = Blueprint('competition_views', __name__, template_folder='..
 
 @competition_views.route('/api/competitions', methods=['GET'])
 def get_competitions():
+    # Regular users and moderators can view the competitions
     competitions = Competition.query.all()
     return jsonify([
         {
@@ -25,21 +26,39 @@ def get_competitions():
             'description': competition.description
         }
         for competition in competitions
-    ])
+    ]), 200
+    
 
 @competition_views.route('/api/competitions/<int:competition_id>', methods=['GET'])
 def get_competition_details(competition_id):
+    # Regular users and moderators can view the competition details
     competition = Competition.query.get_or_404(competition_id)
     return jsonify({
         'id': competition.id,
         'name': competition.name,
         'date': competition.date.isoformat(),
         'description': competition.description
-    })
+    }), 200
+
+@competition_views.route('/api/competitions/<int:competition_id>/participants', methods=['GET'])
+def get_competition_participants(competition_id):
+    # Regular users and moderators can view the participants of a competition
+    competition = Competition.query.get_or_404(competition_id)
+    participants = competition.participants  # Assuming participants are a related model or list
+
+    return jsonify([
+        {
+            'id': participant.id,
+            'username': participant.username,
+            'team': participant.team  # Assuming the participant has a 'team' attribute
+        }
+        for participant in participants
+    ]), 200
 
 @competition_views.route('/api/competitions', methods=['POST'])
 @jwt_required()
 def create_competition_endpoint():
+    # Only moderators can create competitions
     if not jwt_current_user() or not jwt_current_user().is_moderator:
         return jsonify({'message': 'Permission denied'}), 403
 
@@ -70,6 +89,7 @@ def create_competition_endpoint():
 @competition_views.route('/api/competitions/<int:competition_id>', methods=['PUT'])
 @jwt_required()
 def update_competition_endpoint(competition_id):
+    # Only moderators can update competitions
     if not jwt_current_user() or not jwt_current_user().is_moderator:
         return jsonify({'message': 'Permission denied'}), 403
 
@@ -96,6 +116,7 @@ def update_competition_endpoint(competition_id):
 @competition_views.route('/api/competitions/<int:competition_id>', methods=['DELETE'])
 @jwt_required()
 def delete_competition_endpoint(competition_id):
+    # Only moderators can delete competitions
     if not jwt_current_user() or not jwt_current_user().is_moderator:
         return jsonify({'message': 'Permission denied'}), 403
 
@@ -107,6 +128,7 @@ def delete_competition_endpoint(competition_id):
 @competition_views.route('/api/competitions/import', methods=['POST'])
 @jwt_required()
 def import_competitions_endpoint():
+    # Only moderators can import competitions
     if not jwt_current_user() or not jwt_current_user().is_moderator:
         return jsonify({'message': 'Permission denied'}), 403
 
@@ -115,7 +137,7 @@ def import_competitions_endpoint():
         return jsonify({'message': 'No file provided.'}), 400
 
     try:
-        # Assume `import_competitions` handles file parsing and imports data.
+        
         count = import_competitions(file)
         return jsonify({'message': f'{count} competitions imported successfully.'}), 200
     except Exception as e:
@@ -124,6 +146,7 @@ def import_competitions_endpoint():
 @competition_views.route('/api/results', methods=['POST'])
 @jwt_required()
 def upload_results_endpoint():
+
     if not jwt_current_user() or not jwt_current_user().is_moderator:
         return jsonify({'message': 'Permission denied'}), 403
 
@@ -132,11 +155,11 @@ def upload_results_endpoint():
         return jsonify({'message': 'No file provided.'}), 400
 
     try:
-        # Assume `import_results` handles parsing and imports result data.
+       
         count = import_results(file)
-        return jsonify({'message': f'{count} results imported successfully.'}), 200
+        return jsonify({'message': f'{count} results uploaded successfully.'}), 200
     except Exception as e:
-        return jsonify({'message': f"Error importing results: {str(e)}"}), 500
+        return jsonify({'message': f"Error uploading results: {str(e)}"}), 500
 
 @competition_views.route('/api/leaderboard', methods=['GET'])
 def leaderboard_endpoint():
@@ -151,4 +174,36 @@ def leaderboard_endpoint():
     ]
     return jsonify({'leaderboard': leaderboard}), 200
 
-        
+@competition_views.route('/api/competitions/join', methods=['POST'])
+def join_competition():
+    # Get the data from the request
+    data = request.get_json()
+    username = data.get('username')
+    competition_id = data.get('competition_id')
+
+    # Fetch the user and competition from the database
+    user = User.query.filter_by(username=username).first()
+    competition = Competition.query.get(competition_id)
+
+    if not user:
+        return jsonify({"error": f"User '{username}' not found."}), 404
+    if not competition:
+        return jsonify({"error": f"Competition with ID {competition_id} not found."}), 404
+
+    # Check if the competition is full
+    if len(competition.participants) >= competition.participants_amount:
+        return jsonify({"error": "Competition is full."}), 400
+
+    # Check if the user has already joined the competition
+    existing_participant = Participant.query.filter_by(user_id=user.id, competition_id=competition.id).first()
+    if existing_participant:
+        return jsonify({"error": "User already joined this competition."}), 400
+
+    # Create a new participant
+    new_participant = Participant(name=user.username, user_id=user.id, competition_id=competition.id)
+    db.session.add(new_participant)
+    db.session.commit()
+
+    return jsonify({
+        "message": f"User {user.username} successfully joined the competition '{competition.name}'!"
+    }), 200
