@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, jsonify, request, flash, send_from_directory, flash, redirect, url_for
 from flask_jwt_extended import jwt_required, current_user, unset_jwt_cookies, set_access_cookies
-
+from flask import session
 
 
 from.index import index_views
@@ -34,19 +34,28 @@ def login_action():
     data = request.form
     token = login(data['username'], data['password'])
     response = redirect(request.referrer)
+
     if not token:
-        flash('Bad username or password given'), 401
-    else:
-        flash('Login Successful')
-        set_access_cookies(response, token) 
+        flash('Bad username or password given','error')
+        return response
+    
+    session['user'] = data['username']
+    session['user_type'] = 'user'
+
+    flash('Login Successful', 'success')
+    reply = redirect(url_for('index_views.index_page'))
+    set_access_cookies(response, token) 
+
     return response
 
 @auth_views.route('/logout', methods=['GET'])
 def logout_action():
-    response = redirect(request.referrer) 
-    flash("Logged Out!")
-    unset_jwt_cookies(response)
-    return response
+    session.pop('user', None)
+    session.pop('user_type', None)
+
+    flash("You have been logged out",'success')
+
+    return redirect(url_for('index_views.index_page'))
 
 '''
 API Routes
