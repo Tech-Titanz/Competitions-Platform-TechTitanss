@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from App.main import create_app
 from App.database import db, create_db
 from datetime import datetime
-from App.controllers.commands import CreateCompetitionsCommand,UpdateCompetitionCommand,DeleteCompetitionCommand
+from App.controllers.commands import *
 from App.models import User, Competition, Result
 from App.controllers import (
     create_user,
@@ -13,8 +13,6 @@ from App.controllers import (
     get_user,
     update_user,
     create_competition,   
-    get_results,
-    import_competitions,
     delete_competition,
 )
 
@@ -152,101 +150,108 @@ class UsersIntegrationTests(unittest.TestCase):
         
 class CompetitionIntegrationTests(unittest.TestCase):
     def test_create_competition(self):
-    # Create a new competition
-        competition = create_competition(
-            "Hackattack",
-            "2024-12-12",
-            "Test competition",  # Update this to match the function's behavior
-            100,
-            30
+        command = CreateCompetitionsCommand(
+            "Hackathon 2024", "Annual coding event", "2024-12-12", 200, 8
         )
+        error, competition = command.execute()
 
-    # Assert that the competition was created and saved to the database
+        assert error is None
         assert competition is not None
-        assert competition.name == "Hackattack"
+        assert competition.name == "Hackathon 2024"
         assert competition.date == datetime.strptime("2024-12-12", "%Y-%m-%d").date()
-        assert competition.description == "Test competition"  # Ensure this matches the input
+        assert competition.description == "Annual coding event"
+        assert competition.participants_amount == 200
+        assert competition.duration == 8
 
     
     
     def test_update_competition(self):
-    # Create a new competition
-        competition = create_competition(
-            "Hackattack", 
-            "2024-12-12", 
-            "This is a test competition", 
-            100, 
-            30
+        # Create a competition to update
+        create_command = CreateCompetitionsCommand(
+            "Update Test", "Initial Description", "2024-12-10", 150, 4
         )
+        _, competition = create_command.execute()
 
-        competition.name = "Hackattack Updated"
-        competition.date = datetime.strptime("2025-01-01", "%Y-%m-%d").date()
-        competition.description = "Updated test competition"
-        competition.participants_amount = 200
-        competition.duration = 40
-        db.session.commit()
+        # Update the competition
+        update_command = UpdateCompetitionCommand(competition.id, "Updated Name", "2024-12-15")
+        error, updated_competition = update_command.execute()
 
-        updated_competition = Competition.query.get(competition.id)
-
-        assert updated_competition.name == "Hackattack Updated"
-        assert updated_competition.date == datetime.strptime("2025-01-01", "%Y-%m-%d").date()
-        assert updated_competition.description == "Updated test competition"
-        assert updated_competition.participants_amount == 200
-        assert updated_competition.duration == 40
-
+        assert error is None
+        assert updated_competition.name == "Updated Name"
+        assert updated_competition.date == datetime.strptime("2024-12-15", "%Y-%m-%d").date()
 
 
     def test_delete_competition(self):
-        competition = create_competition(
-            "Hackattack", 
-            "2024-12-12",  # Correct placement of date
-            "This is a test competition",  # Correct placement of description
-            100, 
-            30
-    )
-        delete_competition(competition.id)
+       
+        create_command = CreateCompetitionsCommand(
+            "Delete Test", "To be deleted", "2024-12-20", 100, 5
+        )
+        _, competition = create_command.execute()
+
+        delete_command = DeleteCompetitionCommand(competition.id)
+        error, message = delete_command.execute()
+
+        assert error is None
+        assert message == f"Competition with ID {competition.id} has been deleted."
         deleted_competition = Competition.query.get(competition.id)
         assert deleted_competition is None
 
-    # def test_get_results(self):
-    # # Create a competition
-    #     competition = create_competition(
-    #         "Hackattack",
-    #         "2024-12-12",
-    #         "This is a test competition",
-    #         100,
-    #         30
-    #     )
+    def test_get_competition_details(self):
+        create_command = CreateCompetitionsCommand(
+            "Details Test", "Fetching details", "2024-12-25", 300, 12
+        )
+        _, competition = create_command.execute()
 
-    # # Simulate getting competition results
-    #     results = get_results(competition.id)
+        # Fetch competition details
+        details_command = GetCompetitionDetailsCommand(competition.id)
+        error, fetched_competition = details_command.execute()
 
-    # # Assert that results are returned as a list (even if empty)
-    #     assert results is not None
-    #     assert isinstance(results, list)  # Ensure it is a list
-    #     assert len(results) == 0  # Expecting no results since none are added
+        assert error is None
+        assert fetched_competition.id == competition.id
+        assert fetched_competition.name == "Details Test"
 
+    def test_import_competitions(self):
+        # Write a temporary CSV file for importing competitions
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="w") as temp_file:
+            temp_file.write(
+                "name,date,description,participants_amount,duration\n"
+                "Import Test 1,2024-12-10,First Import,50,5\n"
+                "Import Test 2,2024-12-15,Second Import,100,10\n"
+            )
+            temp_file_path = temp_file.name
+
+        import_command = ImportCompetitionsCommand(temp_file_path)
+        import_command.execute()
+
+        competition1 = Competition.query.filter_by(name="Import Test 1").first()
+        competition2 = Competition.query.filter_by(name="Import Test 2").first()
+
+        assert competition1 is not None
+        assert competition1.date == datetime.strptime("2024-12-10", "%Y-%m-%d").date()
+        assert competition1.description == "First Import"
+
+        assert competition2 is not None
+        assert competition2.date == datetime.strptime("2024-12-15", "%Y-%m-%d").date()
+        assert competition2.description == "Second Import"
+
+        os.remove(temp_file_path)
     
-    # def test_import_competitions():
-
-    #     competition_file_path = competitions.csv
     
+    def test_user_join_competition_success(self):
+        # Create a user and competition for testing
+        create_user_command = RegisterUserCommand("john", "johnpass")
+        user = create_user_command.execute()
 
-    #     import_competitions(competition_file_path)
-    
- 
-    #     competitions = Competition.query.all()
+        create_competition_command = CreateCompetitionsCommand(
+            "Join Test", "Test competition for user join", "2024-12-10", 2, 4
+        )
+        _, competition = create_competition_command.execute()
 
+        # User joins the competition
+        join_command = JoinCompetitionCommand(user.id, competition.id)
+        error, updated_competition = join_command.execute()
 
-    #     assert len(competitions) > 0, "No competitions found in the database after import"
-    
-   
-    #     competition_names = [comp.name for comp in competitions]
-
-    
-    #     assert "Hackattack" in competition_names, "'Hackattack' not found in imported competitions"
-    #     assert "Python Mastery" in competition_names, "'Python Mastery' not found in imported competitions"
-    #     assert "AI Innovation Sprint" in competition_names, "'AI Innovation Sprint' not found in imported competitions"
-    #     assert "AnotherCompetition" not in competition_names, "'AnotherCompetition' should not be in the list"
-
-    #     print("Competitions import test passed successfully!")
+        assert error is None
+        assert updated_competition is not None
+        assert len(updated_competition.participants) == 1
+        assert updated_competition.participants[0].user_id == user.id
