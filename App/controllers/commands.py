@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from App.controllers.user import update_user
 from App.models import User, Competition,Result
 from App.database import db
 from datetime import datetime
@@ -258,21 +259,50 @@ class ImportResultsCommand(Command):
 
             
 class AddCompetitionResultsCommand(Command):
-    def __init__(self, competition_id, results):
+    def __init__(self, user_id, competition_id, new_score):
+        self.user_id = user_id
         self.competition_id = competition_id
-        self.results = results
+        self.new_score = new_score
 
     def execute(self):
         competition = Competition.query.get(self.competition_id)
-        if competition:
-            for result in self.results:
-                db.session.add(result)
-            db.session.commit()
-            print(f"Results added for competition {competition.name}.")
-            return competition
-        else:
+        if not competition:
             print(f"Competition with ID {self.competition_id} not found.")
             return None
+
+        user = User.query.get(self.user_id)
+        if not user:
+            print(f"User with ID {self.user_id} not found.")
+            return None
+        
+        existing_result = Result.query.join(Participant).filter(
+            Participant.user_id == self.user_id,
+            Result.competition_id == self.competition_id
+        ).first()
+
+        if existing_result:
+        
+            existing_result.score += self.new_score
+        else:
+           
+            participant = Participant.query.filter_by(user_id=self.user_id, competition_id=self.competition_id).first()
+            if not participant:
+                print(f"Participant with user ID {self.user_id} not found in competition {self.competition_id}.")
+                return None
+
+            new_result = Result(participant_id=participant.id, competition_id=self.competition_id, score=self.new_score)
+            db.session.add(new_result)
+
+
+        db.session.commit()
+
+        AggregateProfileCommand(self.competition_id).execute()
+
+        print(f"Results updated for user {user.username} in competition {competition.name}.")
+        return competition
+
+
+
 
 
 class JoinCompetitionCommand:
@@ -316,13 +346,36 @@ class ViewProfileCommand(Command):
         user = User.query.get(self.user_id)
         if not user:
             return f"User with ID {self.user_id} not found.", None
-        
-        
+
+  
         results = Result.query.join(Participant).filter(Participant.user_id == self.user_id).all()
+
+        
+        participant_scores = defaultdict(int)
+
+    
+        for result in results:
+            participant_scores[user.username] += result.score
+
+
+        all_results = Result.query.all()
+        all_participants = defaultdict(int)
+
+        for result in all_results:
+            all_participants[result.participant.name] += result.score
+
+  
+        sorted_participants = sorted(all_participants.items(), key=lambda x: x[1], reverse=True)
+
+        rank = 1
+        for participant_name, total_score in sorted_participants:
+            if participant_name == user.username:
+                break
+            rank += 1
 
         profile_details = {
             "username": user.username,
-            "rank": user.rank,
+            "rank": rank,
             "competitions": []
         }
 
@@ -340,53 +393,53 @@ class ViewProfileCommand(Command):
 class ViewLeaderboardCommand(Command):
     def __init__(self, competition_id=None):
         self.competition_id = competition_id  
+
     def execute(self):
-        if self.competition_id:
-           
-            results = Result.query.filter_by(competition_id=self.competition_id).join(User).all()
-            leaderboard = sorted(results, key=lambda x: x.score, reverse=True)
-        else:
-      
-            results = Result.query.join(User).all()
-            user_scores = defaultdict(int)
+        
+        aggregate_command = AggregateProfileCommand(self.competition_id)
+        leaderboard_data = aggregate_command.execute()  
 
-            for result in results:
-                user_scores[result.user.id] += result.score
+        
+        leaderboard = [(participant_name, total_score, competitions_participated) for participant_name, total_score, competitions_participated in leaderboard_data]
 
-            leaderboard = sorted(user_scores.items(), key=lambda x: x[1], reverse=True)
-
-  
-        leaderboard_data = []
-        for entry in leaderboard:
-            if isinstance(entry, tuple):  
-                user = User.query.get(entry[0])
-                leaderboard_data.append((user.username, entry[1]))
-            else:  
-                leaderboard_data.append((entry.user.username, entry.score))
-
-        return leaderboard_data
+        return leaderboard
 
     
 class UpdateParticipantCommand(Command):
-    def __init__(self, participant_id, new_name, new_competition_id):
-        self.participant_id = participant_id
+    def __init__(self, user_id, new_name=None, new_competition_id=None):
+        self.user_id = user_id
         self.new_name = new_name
         self.new_competition_id = new_competition_id
 
     def execute(self):
-        participant = Participant.query.get(self.participant_id)
-        if not participant:
-            return f"Participant with ID {self.participant_id} not found!", None
 
-        participant.name = self.new_name
-        competition = Competition.query.get(self.new_competition_id)
-        if competition:
-            participant.competition_id = self.new_competition_id
-        else:
-            return f"Competition with ID {self.new_competition_id} not found!", None
+        user = User.query.get(self.user_id)
+        if not user:
+            return f"User with ID {self.user_id} not found!", None
+
+
+        if self.new_name:
+            user.username = self.new_name
+
+
+        if self.new_competition_id:
+            competition = Competition.query.get(self.new_competition_id)
+            if not competition:
+                return f"Competition with ID {self.new_competition_id} not found!", None
+
+            
+            participant = Participant.query.filter_by(user_id=self.user_id).first()
+            if participant:
+                participant.competition_id = self.new_competition_id
+            else:
         
+                participant = Participant(user_id=self.user_id, competition_id=self.new_competition_id)
+                db.session.add(participant)
+
         db.session.commit()
-        return None, participant
+
+        return None, user
+
     
 class ViewCompetitionParticipantsCommand(Command):
     def __init__(self, competition_id):

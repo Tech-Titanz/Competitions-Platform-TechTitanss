@@ -58,6 +58,26 @@ def update_competition_cli(competition_id, new_name, new_date):
     else:
         click.echo(f"Competition updated: ID={competition.id}, New Name={competition.name}, New Date={competition.date}")
 
+
+@competition_cli.command("update-participant", help="Update an existing participant")
+@click.argument('user_id', type=int)
+@click.argument('new_name', type=str, default=None, required=False)  # Optional argument
+@click.argument('new_competition_id', type=int, default=None, required=False)  # Optional argument
+def update_participant_cli(user_id, new_name, new_competition_id):
+    
+    command = UpdateParticipantCommand(user_id, new_name, new_competition_id)
+    error, user = command.execute()
+
+    if error:
+        click.echo(error)
+    else:
+        click.echo(f"User ID {user_id} has been updated.")
+        if new_name:
+            click.echo(f"New username: {user.username}")
+        if new_competition_id:
+            click.echo(f"New competition ID: {new_competition_id}")
+
+
 @competition_cli.command("delete", help="Delete a competition by ID")
 @click.argument('competition_id', type=int)
 def delete_competition_cli(competition_id):
@@ -78,26 +98,24 @@ def view_competitions_cli():
         click.echo("No competitions found.")
         
         
-@competition_cli.command("view-comp", help="View participants for Competitions")
+@competition_cli.command("view-comp-participant", help="View participants for Competitions")
 @click.argument("competition_id", type=int)
 def view_competition_participant(competition_id):
-    # Create the command object
     command = ViewCompetitionParticipantsCommand(competition_id)
     
-    # Execute the command
+    
     error, participants = command.execute()
     
-    # Handle errors
+    
     if error:
         click.echo(error)
         return
     
-    # Display the participants
+ 
     click.echo(f"Participants in Competition {competition_id}:")
     for participant in participants:
-        user = User.query.get(participant.user_id)  # Fetch the associated user details
+        user = User.query.get(participant.user_id)  
         
-        # Check if the user exists
         if user:
             click.echo(f"Name: {user.username}, ID: {user.id}")
         else:
@@ -106,17 +124,32 @@ def view_competition_participant(competition_id):
     
         
 @competition_cli.command("view_leaderboard", help="View the leaderboard of all users")
-def view_leaderboard_cli():
-    command = ViewLeaderboardCommand()
-    users = command.execute()
+@click.argument('competition_id', default=None, type=int, required=False)
+def view_leaderboard_cli(competition_id):
+    command = ViewLeaderboardCommand(competition_id=competition_id)  # Pass competition_id to command
+    leaderboard_data = command.execute()
 
-    if not users:
-        click.echo("No users found.")
+    if not leaderboard_data:
+        click.echo("No leaderboard data found.")
     else:
         click.echo("Leaderboard:")
-        for user in users:
-            click.echo(f"Username: {user.username}, Rank: {user.rank}")
+        rank = 1
+        for participant_name, total_score,comp_participate in leaderboard_data:
+            click.echo(f"Rank: {rank}, {participant_name}, Score: {total_score}, {competition_id}, Number of events: {comp_participate}")
+            rank += 1
         
+@competition_cli.command("add_results", help="Add or update results for a user in a competition")
+@click.argument('user_id', type=int)
+@click.argument('competition_id', type=int)
+@click.argument('new_score', type=int)
+def add_results_cli(user_id, competition_id, new_score):
+    command = AddCompetitionResultsCommand(user_id, competition_id, new_score)
+    command.execute()
+    
+
+
+        
+
 
 @competition_cli.command("import", help="Import competitions, participants, and results from CSV files")
 @click.argument('competition_file')
@@ -174,7 +207,7 @@ def view_results_cli(results_file, competitions_file):
         click.echo(f"An error occurred: {e}")
         
  
-@app.cli.command("calculate-aggregate", help="Calculate Aggregate Profile Ranking")
+@competition_cli.command("calculate-aggregate", help="Calculate Aggregate Profile Ranking")
 @click.option("--competition-id", type=int, help="Filter by specific competition ID (optional)")
 @click.option("--output-file", type=str, help="Path to save the ranking results (optional)")
 def calculate_aggregate_ranking_cli(competition_id=None, output_file=None):

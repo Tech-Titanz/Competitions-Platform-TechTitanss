@@ -255,3 +255,6 @@ class CompetitionIntegrationTests(unittest.TestCase):
         assert updated_competition is not None
         assert len(updated_competition.participants) == 1
         assert updated_competition.participants[0].user_id == user.id
+        
+        
+    
