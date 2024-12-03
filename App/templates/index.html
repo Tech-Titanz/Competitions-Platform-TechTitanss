@@ -1,9 +1,12 @@
 {% extends "layout.html" %}
 
+
 {% block title %}Competition Platform{% endblock %}
 {% block page %}Competition Platform{% endblock %}
 
+
 {{ super() }}
+
 
 {% block content %}
 <div class="container">
@@ -20,7 +23,7 @@
                 </div>
             {% endif %}
             <div class="col s12 m6">
-                <a href="homepage/competitions_list.html" class="btn grey darken-1 waves-effect waves-light full-width">Competition List</a>
+                <a href="/competition_list" class="btn grey darken-1 waves-effect waves-light full-width">Competition List</a>
             </div>
             <div class="col s12 m6">
                 <a href="homepage/leaderboard.html" class="btn grey lighten-1 waves-effect waves-light full-width">Leaderboard</a>
@@ -31,3 +34,4 @@
     {% endif %}
 </div>
 {% endblock %}
+

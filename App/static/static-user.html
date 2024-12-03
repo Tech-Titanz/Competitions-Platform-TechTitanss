@@ -1,35 +1,111 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-  
-     <!--Import Google Icon Font-->
+    <!-- Import Google Icon Font -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!--Let browser know website is optimized for mobile-->
+    <!-- Let browser know website is optimized for mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>App Users</title>
+    <style>
+      
+      body, html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', sans-serif;
+        background: #f4f4f9 url('../static/images/background.webp') no-repeat center center fixed;
+        background-size: cover;
+        color: #333333;
+        height: 100%;
+      }
 
+      /* Navbar Styling */
+      .purple {
+        background-color: rgba(63, 81, 181, 0.95) !important; 
+      }
+
+      .brand-logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white !important;
+      }
+
+      .nav-wrapper ul li a {
+        color: white !important;
+        font-weight: 500;
+      }
+
+      /* Table Styling */
+      table {
+        width: 100%;
+        margin: 20px 0;
+        border-collapse: collapse;
+        background: rgba(255, 255, 255, 0.9); 
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #fbc02d;
+        color: white;
+        font-weight: bold;
+      }
+
+      td {
+        background-color: #ffffff;
+      }
+
+      tbody tr:hover {
+        background-color: #f4f4f4;
+      }
+
+
+      /* Container Styling */
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Footer Styling */
+      footer {
+        background: rgba(63, 81, 181, 0.95);
+        color: white;
+        padding: 15px 0;
+        font-size: 0.9rem;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
   </head>
+
   <body>
     <nav class="purple">
       <div class="nav-wrapper">
         <a href="#!" class="brand-logo center">App Users</a>
         <div class="nav-wrapper">
-            <ul id="nav-mobile" class="left">
-                <li><a href="/">Home</a></li>
-                <li><a href="/users">Users Jinja</a></li>
-                <li><a href="/static/users">Users JS</a></li>
-            </ul>
+          <ul id="nav-mobile" class="left">
+            <li><a href="/">Home</a></li>
+            <li><a href="/static/users">Existing Users</a></li>
+          </ul>
         </div>
       </div>
     </nav>
     
     <div class="container" id="content">
         <div class="row">
-            <p>
-                This is table is rendered on the Client. JavaScript code requests the data from <a href="/api/users">/api/users</a> and writes it to this page.
-            </p>
+            <!-- <p>
+                This table is rendered on the Client. JavaScript code requests the data from <a href="/api/users">/api/users</a> and writes it to this page.
+            </p> -->
         </div>
         <div class="row">
             <table>
@@ -39,8 +115,7 @@
                   </tr>
                 </thead>
                 <tbody id="result">
-                
-                <tbody>
+                </tbody>
             </table>
         </div>
     </div>

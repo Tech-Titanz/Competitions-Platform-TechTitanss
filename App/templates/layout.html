@@ -18,14 +18,16 @@
             <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
                 <li><a href="/">Home</a></li>
-                <li><a href="/users">Users Jinja</a></li>
-                <li><a href="/static/users">Users JS</a></li>
+                <!-- <li><a href="/users">Users Jinja</a></li> -->
+                <li><a href="/static/users">Existing Users</a></li>
                 {% if 'user' in session %}
-                    <li><a href="/identify">Identify</a></li>
+                    <!-- <li><a href="/identify">Identify</a></li> -->
                     <li><a href="/logout" class="btn-logout">Logout</a></li>
                 {% else %}
                     <!-- Login Trigger Button -->
                     <li><a href="javascript:void(0);" onclick="openLoginForm()">Login</a></li>
+                    <!-- Sign Up Trigger Button -->
+                    <li><a href="javascript:void(0);" onclick="openSignupForm()">Sign Up</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -63,26 +65,52 @@
             <h4>Login</h4>
             <form method="POST" action="/login">
                 <div class="input-field">
-                    <input placeholder="Username" value="bob" name="username" type="text" class="validate" required>
+                    <input placeholder="Username" name="username" type="text" class="validate" required>
                     <label for="username">Username</label>
                 </div>
                 <div class="input-field">
-                    <input placeholder="Password" value="bobpass" name="password" type="password" class="validate" required>
+                    <input placeholder="Password" value="" name="password" type="password" class="validate" required>
                     <label for="password">Password</label>
                 </div>
                 <button type="submit" class="btn custom-login-btn">Login</button>
             </form>
+            <!-- Link to Signup -->
+            <div class="center-align">
+                <p>Don't have an account? <a href="javascript:void(0);" onclick="openSignupForm()">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Form (Initially Hidden) -->
+    <div id="signupForm" class="modal">
+        <div class="modal-content">
+            <h4>Sign Up</h4>
+            <form method="POST" action="{{ url_for('auth_views.signup_action') }}">
+                <div class="input-field">
+                    <input placeholder="Username" name="username" type="text" class="validate" required>
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-field">
+                    <input placeholder="Password" name="password" type="password" class="validate" required>
+                    <label for="password">Password</label>
+                </div>
+                <button type="submit" class="btn custom-signup-btn">Sign Up</button>
+            </form>
+            <!-- Link to Login -->
+            <div class="center-align">
+                <p>Already have an account? <a href="javascript:void(0);" onclick="openLoginForm()">Login</a></p>
+            </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="custom-footer">
         <div class="container center-align">
-            <p>&copy; 2024 CodeCompete | All Rights Reserved.</p>
+            <p>&copy; 2024 CodeRunners | All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- Materialize JavaScript -->
+    <!-- JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
         M.AutoInit();
@@ -91,6 +119,13 @@
         function openLoginForm() {
             const loginForm = document.getElementById('loginForm');
             const instance = M.Modal.init(loginForm);
+            instance.open();
+        }
+
+        // Function to open the signup form
+        function openSignupForm() {
+            const signupForm = document.getElementById('signupForm');
+            const instance = M.Modal.init(signupForm);
             instance.open();
         }
 

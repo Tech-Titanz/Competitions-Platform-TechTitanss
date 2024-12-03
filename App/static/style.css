@@ -27,25 +27,6 @@ body, html {
   font-weight: 500;
 }
 
-.navbar-login-form {
-  display: flex;
-  align-items: center;
-}
-
-.navbar-login-form .login-field {
-  margin-right: 10px;
-}
-
-.custom-login-btn {
-  background-color: #fbc02d !important;
-  color: black !important;
-  font-weight: bold;
-}
-
-.custom-login-btn:hover {
-  background-color: #ffc107 !important;
-}
-
 /* Main Content (Floating Between Navbar and Footer) */
 .main-content {
   position: absolute;
@@ -63,6 +44,7 @@ body, html {
   height: 380px; /* Adjusted height to make it shorter */
 }
 
+/* Welcome Container */
 .welcome-container {
   text-align: center;
   padding: 20px;
@@ -83,6 +65,7 @@ body, html {
   margin-bottom: 20px;
 }
 
+/* Custom Button */
 .custom-button {
   background-color: #fbc02d !important;
   color: black !important;
@@ -113,7 +96,7 @@ body, html {
   color: #333;
   margin-bottom: 20px;
   font-weight: 600;
-  text-align: center; /* Added to center the title */
+  text-align: center; /* Center the title */
 }
 
 .input-field input {
@@ -140,4 +123,50 @@ body, html {
 
 .modal .btn.custom-login-btn:hover {
   background-color: #ffc107 !important;
+}
+
+/* Signup Form Styling */
+.modal-content h4 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center; /* Center the title */
+}
+
+.input-field input {
+  border-bottom: 2px solid #fbc02d;
+  font-size: 1rem;
+  color: #333;
+}
+
+.input-field label {
+  color: #666;
+}
+
+.modal-content form {
+  margin-top: 30px;
+}
+
+.modal .btn.custom-signup-btn {
+  width: 100%;
+  background-color: #fbc02d !important;
+  color: black !important;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.modal .btn.custom-signup-btn:hover {
+  background-color: #ffc107 !important;
+}
+
+/* Links Styling */
+.center-align p a {
+  color: #2da9fb;
+  font-weight: bold;
+}
+
+.center-align p a:hover {
+  color: #075eff;
+  text-decoration: underline;
 }
