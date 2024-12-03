@@ -1,71 +1,36 @@
 {% extends "layout.html" %}
 
-{% block title %}Home | CodeRunners{% endblock %}
+
+{% block title %}Competition Platform{% endblock %}
+{% block page %}Competition Platform{% endblock %}
+
+
+{{ super() }}
+
 
 {% block content %}
-<!-- Top Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <!-- Logo on the left -->
-        <a class="navbar-brand" href="/">CodeRunners</a>
-        
-        <!-- Navigation Links in the center -->
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/profile">Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/settings">Settings</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/help">Help</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/alerts">Alerts</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
-<div class="container text-center pt-5">
-    <h1 class="bg-secondary text-white rounded py-3">WELCOME TO COMPETITION PLATFORMS</h1>
-    
-    {% if is_authenticated %}
-        <p>Welcome, {{ current_user.username }}!</p>
-    {% endif %}
-    
-    <div class="mt-5">
-        <h2 class="bg-info text-white rounded py-3">CREATE COMPETITIONS</h2>
-        <ul class="list-unstyled">
-            <li class="my-2">
-                <a href="/competitions/{{ competition.id }}" class="text-white text-decoration-none">{{ competition.name }}</a>
-            </li>
-        </ul>
-        
-        <!-- Start Now Button -->
-        <div class="mt-4">
-            <a href="/create-competition" class="btn btn-dark">Start Now</a>
+<div class="container">
+    <h1 class="center-align">Welcome to the Competition Platform</h1>
+    {% if 'user' in session %}
+        <p> Welcome <strong>{{ session['user'] }}</strong>! Ready to start?</p>
+        <div class="row">
+            {% if session['user_type'] == 'moderator' %}
+                <div class="col s12 m6">
+                    <a href="homepage/create_competition.html" class="btn grey darken-1 waves-effect waves-light full-width">Create Competition</a>
+                </div>
+                <div class="col s12 m6">
+                    <a href="homepage/import_results.html" class="btn grey lighten-1 waves-effect waves-light full-width">Import Competition Results</a>
+                </div>
+            {% endif %}
+            <div class="col s12 m6">
+                <a href="/competition_list" class="btn grey darken-1 waves-effect waves-light full-width">Competition List</a>
+            </div>
+            <div class="col s12 m6">
+                <a href="homepage/leaderboard.html" class="btn grey lighten-1 waves-effect waves-light full-width">Leaderboard</a>
+            </div>
         </div>
-    </div>
-
-    <!-- Leaderboard Section -->
-    <div class="mt-5">
-        <h2 class="bg-info text-white rounded py-3">LEADERBOARD</h2>
-        
-        <!-- View Results Button -->
-        <div class="mt-4">
-            <a href="/leaderboard" class="btn btn-dark">View Results</a>
-        </div>
-    </div>
-
-    <!-- Import Competition Results (Only for Moderators) -->
-    {% if current_user.role == 'moderator' %}
-    <div class="mt-5">
-        <h2 class="bg-info text-white rounded py-3">IMPORT COMPETITION RESULTS</h2>
-        <div class="mt-4">
-            <a href="/import-results" class="btn btn-dark">Import Results</a>
-        </div>
-    </div>
+    {% else %}
+        <p class="center-align">Please login to access the competition platform features.</p>
     {% endif %}
 </div>
 {% endblock %}
