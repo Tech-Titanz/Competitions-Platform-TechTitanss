@@ -1,36 +1,31 @@
 {% extends "layout.html" %}
 
-
-{% block title %}Competition Platform{% endblock %}
-{% block page %}Competition Platform{% endblock %}
-
-
-{{ super() }}
-
+{% block title %}Home | CodeRunners{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="center-align">Welcome to the Competition Platform</h1>
-    {% if 'user' in session %}
-        <p> Welcome <strong>{{ session['user'] }}</strong>! Ready to start?</p>
-        <div class="row">
-            {% if session['user_type'] == 'moderator' %}
-                <div class="col s12 m6">
-                    <a href="homepage/create_competition.html" class="btn grey darken-1 waves-effect waves-light full-width">Create Competition</a>
-                </div>
-                <div class="col s12 m6">
-                    <a href="homepage/import_results.html" class="btn grey lighten-1 waves-effect waves-light full-width">Import Competition Results</a>
-                </div>
-            {% endif %}
-            <div class="col s12 m6">
-                <a href="/competition_list" class="btn grey darken-1 waves-effect waves-light full-width">Competition List</a>
-            </div>
-            <div class="col s12 m6">
-                <a href="homepage/leaderboard.html" class="btn grey lighten-1 waves-effect waves-light full-width">Leaderboard</a>
-            </div>
+<div class="container pt-5">
+    <!-- Welcome Section -->
+    <div class="text-center mb-5">
+        <h1 class="welcome-header bg-gradient-teal white-text py-4 px-5 rounded-3">WELCOME TO CODE RUNNERS</h1>
+        {% if is_authenticated %}
+            <p class="welcome-subtitle text-darken-2">Welcome, <strong>{{ current_user.username }}</strong>! Let's compete and shine.</p>
+        {% else %}
+            <p class="welcome-subtitle text-darken-2">Log in to start competing and track your progress.</p>
+        {% endif %}
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="row justify-content-center text-center mt-5">
+        <div class="col-12 col-sm-6 col-md-4 mb-4">
+            <a href="/leaderboard" class="btn-large waves-effect waves-light gradient-blue">View Leaderboard Results</a>
         </div>
-    {% else %}
-        <p class="center-align">Please login to access the competition platform features.</p>
-    {% endif %}
+        <div class="col-12 col-sm-6 col-md-4 mb-4">
+            <a href="/import_results" class="btn-large waves-effect waves-light gradient-amber">Import Results</a>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 mb-4">
+            <a href="/profile" class="btn-large waves-effect waves-light gradient-amber">View Profile</a>
+        </div>
+    </div>   
 </div>
 {% endblock %}
+

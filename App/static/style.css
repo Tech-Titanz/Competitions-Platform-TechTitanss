@@ -170,3 +170,303 @@ body, html {
   color: #075eff;
   text-decoration: underline;
 }
+
+/* Top Navigation Bar Styling */
+.custom-top-nav {
+  background: rgba(63, 81, 181, 0.95);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.custom-top-nav .navbar-brand {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fbc02d !important;
+}
+
+.custom-top-nav .nav-link {
+  color: white !important;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.custom-top-nav .nav-link:hover {
+  color: #ffc107 !important;
+  text-decoration: none;
+}
+
+/* Leaderboard Section Styling */
+.leaderboard-section {
+  margin-top: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.leaderboard-section h2 {
+  font-size: 1.8rem;
+  color: #fbc02d;
+  font-weight: bold;
+  text-align: center;
+}
+
+.leaderboard-section .btn {
+  background-color: #fbc02d !important;
+  color: black !important;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.leaderboard-section .btn:hover {
+  background-color: #ffc107 !important;
+}
+
+/* Competition List Section Styling */
+.competition-list {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 30px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.competition-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.competition-list ul li {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.competition-list ul li a {
+  color: #2da9fb;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.competition-list ul li a:hover {
+  color: #075eff;
+  text-decoration: underline;
+}
+
+/* Create Competition and Import Results Section Styling */
+.create-competition-section, .import-results-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.create-competition-section h2, .import-results-section h2 {
+  font-size: 1.8rem;
+  color: #fbc02d;
+  font-weight: bold;
+  text-align: center;
+}
+
+.create-competition-section .btn, .import-results-section .btn {
+  background-color: #fbc02d !important;
+  color: black !important;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.create-competition-section .btn:hover, .import-results-section .btn:hover {
+  background-color: #ffc107 !important;
+}
+
+/* Welcome Section */
+.welcome-header {
+  background: linear-gradient(45deg, #00695c, #004d40);
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.welcome-subtitle {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #424242;
+}
+
+/* Gradient Button Styling */
+.gradient-blue {
+  background: linear-gradient(45deg, #2979ff, #0288d1);
+}
+
+.gradient-amber {
+  background: linear-gradient(45deg, #ffb300, #ff6f00);
+}
+
+.gradient-purple {
+  background: linear-gradient(45deg, #9c27b0, #6a1b9a);
+}
+
+.gradient-red {
+  background: linear-gradient(45deg, #d32f2f, #c2185b);
+}
+
+.btn-large {
+  padding: 15px 25px;
+  font-size: 1.2rem;
+  transition: background 0.3s ease;
+}
+
+.btn-large:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Competition & Leaderboard Section Styling */
+.collection-header h5 {
+  font-size: 1.6rem;
+  color: #00695c;
+  font-weight: 600;
+}
+
+.collection-item a {
+  font-size: 1.1rem;
+  color: #0288d1;
+  font-weight: bold;
+}
+
+.collection-item a:hover {
+  color: #00695c;
+}
+
+/* Main Layout and Margins */
+.container {
+  max-width: 1200px;
+}
+
+/* Text and Title Colors */
+.teal-text, .deep-orange-text, .green-text {
+  font-weight: bold;
+  font-size: 1.8rem;
+}
+
+/* Section Styling */
+.mt-5 {
+  margin-top: 3rem !important;
+}
+
+.mb-5 {
+  margin-bottom: 3rem !important;
+}
+
+/* Button Transition */
+.waves-effect {
+  transition: all 0.3s ease;
+}
+
+/* General Reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #f4f4f9 url('../static/images/background.webp') no-repeat center center fixed;
+  background-size: cover;
+  color: #333333;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures content doesn't overlap footer */
+}
+
+/* Main Content */
+.main-content {
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto; /* Centers the main content */
+  flex-grow: 1; /* Ensures the content takes up remaining space */
+}
+
+/* Footer */
+.custom-footer {
+  background: rgba(63, 81, 181, 0.95);
+  color: white;
+  padding: 15px 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  position: relative; /* Changed from absolute to relative */
+  bottom: 0;
+}
+/* Flexbox for evenly spaced buttons */
+.row {
+  display: flex;
+  justify-content: center; /* Center the buttons in the row */
+  gap: 1rem; /* Adds space between buttons */
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+/* Ensures that buttons' width adjusts with their content */
+.col-12, .col-sm-6, .col-md-4 {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-large {
+  padding: 15px 25px;
+  font-size: 1.2rem;
+  text-align: center;
+  min-width: 200px; /* Ensures the buttons are wide enough to fit the text */
+}
+
+.btn-large:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient background for buttons */
+.gradient-blue, .gradient-amber {
+  background: linear-gradient(45deg, #2979ff, #0288d1); /* Gradient applied to both */
+}
+
+/* Responsive handling on smaller screens */
+@media screen and (max-width: 767px) {
+  .col-12 {
+    margin-bottom: 1rem; /* Adds spacing between stacked buttons on small screens */
+  }
+}
+
+/* Container for Welcome Section */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Welcome Section */
+.welcome-header {
+  background: linear-gradient(45deg, #00695c, #004d40);
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.welcome-subtitle {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #424242;
+}
+
+/* Footer Adjustment */
+.custom-footer {
+  background-color: rgba(63, 81, 181, 0.95);
+  color: white;
+  padding: 15px 0;
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
