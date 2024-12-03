@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Bar Navigation</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Top Bar Navigation */
+        .navbar {
+            background-color: #00796b;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar .left {
+            font-size: 1.2rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .navbar .right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .right a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar .right a:hover {
+            background-color: #005f56;
+        }
+
+        /* Layout with Sidebar */
+        .main-container {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: #343a40;
+            color: white;
+            width: 250px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #005f56;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .container {
+            background: #444;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .container h1 {
+            font-family: Optima, sans-serif;
+            text-align: center;
+            color: #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dashboard-buttons a {
+            display: block;
+            width: 80%;
+            padding: 15px;
+            background-color: #00796b;
+            color: white;
+            text-align: center;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .dashboard-buttons a:hover {
+            background-color: #005f56;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #00796b;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        .footer .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .footer .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar Navigation -->
+    <div class="navbar">
+        <div class="left">
+            CodeRunner
+        </div>
+        <div class="right">
+            <a href="view_profile.html">View Profile</a>
+            <a href="logout">logout</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <a href="settings">Settings</a>
+            <a href="alerts">Alerts</a>
+            <a href="faq">FAQ</a>
+            <a href="contact">Contact Us</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container">
+                <h1>COMPETITION PLATFORM</h1>
+
+                <div class="dashboard-buttons">
+                    <a href="create_competition.html">Create Competition</a>
+                    <a href="competitions_list.html">Competition List</a>
+                    <a href="import_results.html">Import Results</a>
+                    <a href="leaderboard.html">Leaderboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2024 CodeRunner Inc.</p>
+        <div class="social-icons">
+            <a href="https://www.instagram.com" target="_blank">📷</a>
+            <a href="https://www.facebook.com" target="_blank">📘</a>
+        </div>
+    </div>
+
+</body>
+</html>
