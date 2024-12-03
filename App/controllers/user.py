@@ -13,15 +13,17 @@ def get_user_by_username(username):
 def get_user(id):
     return User.query.get(id)
 
-def get_all_users():
-    return User.query.all()
+def get_all_users(moderator=None):
+    if moderator is None:
+        return User.query.all() 
+    return User.query.filter_by(is_moderator=moderator).all()
 
-def get_all_users_json():
+def get_all_users_json(moderator=None):
     users = User.query.all()
     if not users:
         return []
-    users = [user.get_json() for user in users]
-    return users
+    return [user.get_json() for user in users]
+    
 
 def update_user(id, username):
     user = get_user(id)
