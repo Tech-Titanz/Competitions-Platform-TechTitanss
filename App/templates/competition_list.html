@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition List</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            padding-top: 60px; /* Adjusted for fixed top bar */
+        }
+
+        /* Top Bar Navigation Styles */
+        .top-bar {
+            width: 100%;
+            background-color: #00796b;
+            padding: 10px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            box-sizing: border-box; /* Ensure padding is included in the width */
+        }
+
+        .top-bar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px; /* Add space to the right of the logo */
+        }
+
+        /* Adjust nav to allow space between the logo and links */
+        .top-bar nav {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-left: auto; /* Push the navigation to the right */
+        }
+
+        .top-bar nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px; /* Space out the links */
+            font-size: 1rem;
+            white-space: nowrap; /* Prevent the text from breaking into multiple lines */
+        }
+
+        .top-bar nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Container for the competition list */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Adjusted to not overlap with the fixed top bar */
+        }
+
+        .container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .competition-item {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .competition-item .details {
+            flex: 1;
+        }
+
+        .competition-item h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .competition-item p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .view-more-btn {
+            background-color: #00796b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .view-more-btn:hover {
+            background-color: #005f56;
+        }
+
+        .apply-btn {
+            background-color: #ff5722;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .apply-btn:hover {
+            background-color: #e64a19;
+        }
+
+        .competition-details {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .confirmation-message {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar Navigation -->
+    <div class="top-bar">
+        <div class="logo">CodeRunners</div>
+        <nav>
+            <a href="create_competition.html">Create Competition</a>
+            <a href="import_results.html">Import Results</a>
+            <a href="leaderboard.html">Leaderboard</a>
+        </nav>
+    </div>
+
+    <!-- Main content section -->
+    <div class="container">
+        <h1>HERE IS A LIST OF COMPETITIONS</h1>
+
+        <!-- Competition 1 -->
+        <div class="competition-item">
+            <div class="details">
+                <h3>Competition Title 1</h3>
+                <p>Join Our Competition!</p>
+            </div>
+            <a href="/competition/1" class="view-more-btn">View More</a>
+        </div>
+
+        <!-- Competition 2 -->
+        <div class="competition-item">
+            <div class="details">
+                <h3>Competition Title 2</h3>
+                <p>Come Participate In This Exciting Competition!</p>
+            </div>
+            <a href="/competition/2" class="view-more-btn">View More</a>
+        </div>
+
+        <!-- Competition 3 -->
+        <div class="competition-item">
+            <div class="details">
+                <h3>Competition Title 3</h3>
+                <p>Join Quick Before The Competition Closes!</p>
+            </div>
+            <a href="/competition/3" class="view-more-btn">View More</a>
+        </div>
+    </div>
+
+    <!-- Competition details section -->
+    <div class="container competition-details" style="display: none;" id="competition-details">
+        <h2>Competition Title 1</h2>
+        <p>Description: </p>
+        <p>Date: 2024-12-15</p>
+        <p>Venue: TBA</p>
+        <p>Registration Deadline: </p>
+
+        <!-- Apply Button for Joining the Competition -->
+        <a href="javascript:void(0);" class="apply-btn" id="apply-button">Join Now</a>
+
+        <!-- Confirmation Message -->
+        <div class="confirmation-message" id="confirmation-message">
+            You have just applied for this Competition!
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.view-more-btn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const competitionId = event.target.getAttribute('href').split('/')[2];
+                document.querySelector('#competition-details').style.display = 'block';
+            });
+        });
+
+        document.getElementById('apply-button').addEventListener('click', function() {
+            // Hide the "Apply Now" button
+            this.style.display = 'none';
+
+            // Show the confirmation message
+            document.getElementById('confirmation-message').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
