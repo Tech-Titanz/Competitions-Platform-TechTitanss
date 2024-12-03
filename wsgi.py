@@ -1,6 +1,6 @@
 import click, pytest, sys, csv,os
 from datetime import datetime
-from flask import Flask
+from flask import Flask, json
 from flask.cli import with_appcontext, AppGroup
 from App.database import db, get_migrate
 from App.models import User, Competition, Result, Participant
@@ -231,10 +231,6 @@ def calculate_aggregate_ranking_cli(competition_id=None, output_file=None):
     except Exception as e:
         click.echo(f"An error occurred: {e}")
         
-        
-
-
-
 
 app.cli.add_command(competition_cli)
 
@@ -275,12 +271,29 @@ def create_user_command(username, password, moderator):
   
 
 @user_cli.command("list", help="Lists users in the database")
-@click.argument("format", default="string")
-def list_user_command(format):
-    if format == 'string':
-        print(get_all_users())
-    else:
-        print(get_all_users_json())
+@click.option("--moderator", is_flag=True, help="List only moderators")
+@click.option("--format", type=click.Choice(["string", "json"], case_sensitive=False), default="string", help="Output format (string or json)")
+def list_user_command(moderator, format):
+ 
+    users = get_all_users()
+
+    if moderator:
+        users = [user for user in users if user.is_moderator]
+
+    if format == "string":
+        for user in users:
+            role = "moderator" if user.is_moderator else "regular user"
+            click.echo(f"ID: {user.id}, Username: {user.username}, Role: {role}")
+    elif format == "json":
+        users_json = [
+            {
+                "id": user.id,
+                "username": user.username,
+                "role": "Moderator" if user.is_moderator else "Regular User"
+            }
+            for user in users
+        ]
+        click.echo(json.dumps(users_json, indent=4))
         
 @user_cli.command("view_profile", help="View the profile of a user")
 @click.argument('user_id', type=int)
@@ -297,7 +310,6 @@ def view_profile_cli(user_id):
         for competition in profile_details['competitions']:
             click.echo(f"  - {competition['competition_name']}, Score: {competition['score']}, Date: {competition['date']}")
 
-        
 @user_cli.command("join", help="Join a competition")
 @click.argument("username")
 @click.argument("competition_id", type=int)
@@ -317,6 +329,34 @@ def join_competition_command(username, competition_id):
         click.echo(f"User {user.username} successfully joined the competition '{competition.name}'!")
 
 app.cli.add_command(user_cli) # add the group to the cli
+
+
+@user_cli.command("update", help="Update a user's name or role")
+@click.argument("user_id", type=int)
+@click.option("--username", default=None, help="Update the user's username")
+@click.option("--moderator", is_flag=True, default=None, help="Promote the user to a moderator role")
+@click.option("--regular", is_flag=True, default=None, help="Demote the user to a regular user role")
+def update_user_command(user_id, username, moderator, regular):
+    user = User.query.get(user_id)
+    if not user:
+        click.echo(f"User with ID {user_id} not found.")
+        return
+
+    try:
+        if username:
+            user.username = username
+
+        if moderator:
+            user.is_moderator = True
+        elif regular:
+            user.is_moderator = False
+
+        db.session.commit()
+
+        role = "moderator" if user.is_moderator else "regular user"
+        click.echo(f"User ID {user.id} updated. New username: {user.username}, Role: {role}.")
+    except Exception as error:
+        click.echo(f"Error updating user: {error}")
 
 '''
 Test Commands
