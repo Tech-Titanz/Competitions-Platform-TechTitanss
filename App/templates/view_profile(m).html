@@ -1,192 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.username }}'s Profile</title>
-    <style>
-        body {
-            font-family: Helvetica, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
+{% extends "layout.html" %}
 
-        nav {
-            background-color: #00796b;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
+{% block title %}View Profile{% endblock %}
+{% block page %}Profile{% endblock %}
 
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
+{% block content %}
+<div class="container">
+    <div class="profile-container">
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="Profile Picture" class="circle responsive-img">
+            <h2>{{ session['user'] }}</h2>
+        </div>
 
-        nav ul li {
-            margin-left: 20px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            background-color: #004d40;
-        }
-
-        .container {
-            margin-top: 80px;
-            width: 90%;
-            max-width: 1000px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin: 0 auto; /* Center the container */
-        }
-
-        .profile-header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 4px solid #00796b; /* Border across the top */
-            padding-bottom: 20px;
-            background: url("../static/images/profile.png") no-repeat center center fixed; /* Use relative path */
-            background-size: cover;
-            height: 200px;
-            color: white;
-            position: relative;
-        }
-
-        .profile-header h1 {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 2.5em;
-            font-weight: bold;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Shadow effect for visibility */
-        }
-
-        .profile-header .username {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #fff;
-            margin-top: 10px;
-            text-transform: uppercase; /* Add a more dynamic feel */
-        }
-
-        .stats-box {
-            background-color: #f7f7f7;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 10px 0;
-        }
-
-        .stats-box h5 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .stats-box p {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .participations h4 {
-            margin-top: 30px;
-            font-size: 1.5em;
-        }
-
-        .collection {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .collection-item {
-            padding: 10px 20px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .collection-item:last-child {
-            border-bottom: none;
-        }
-
-        .btn {
-            background-color: #00796b;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #004d40;
-        }
-
-        .secondary-content {
-            float: right;
-        }
-    </style>
-</head>
-<body>
-
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="{{ url_for('index_views.profile') }}">Profile</a></li>
-        </ul>
-    </nav>
-
-    <div class="container">
-        <div class="profile-container">
-            <!-- Profile header with background image -->
-            <div class="profile-header">
-                <h1>{{ user.username }}</h1> <!-- Username now has a dynamic heading effect -->
-            </div>
-
-            <div class="row">
-                <div class="col s6">
-                    <div class="stats-box card-panel center-align">
-                        <h5>Rank</h5>
-                        <p>{{ user.rank if user.rank else 'Not Ranked' }}</p>
-                    </div>
-                </div>
-                <div class="col s6">
-                    <div class="stats-box card-panel center-align">
-                        <h5>Total Points</h5>
-                        <p>{{ user.total_points if user.total_points else 0 }}</p>
-                    </div>
+        <div class="row">
+            <div class="col s6">
+                <div class="stats-box card-panel center-align">
+                    <h5>Rank</h5>
+                    <p>{{ user.rank }}</p>
                 </div>
             </div>
-
-            <div class="participations">
-                <h4>Participations</h4>
-                <ul class="collection">
-                    {% for competition in user.competitions %}
-                    <li class="collection-item">
-                        <span>{{ competition.name }}</span>
-                        <a href="{{ url_for('competition_details', competition_id=competition.id) }}" class="secondary-content btn blue waves-effect waves-light">View</a>
-                    </li>
-                    {% else %}
-                    <li class="collection-item">No participations found.</li>
-                    {% endfor %}
-                </ul>
+            <div class="col s6">
+                <div class="stats-box card-panel center-align">
+                    <h5>Total Points</h5>
+                    <p>{{ user.total_points }}</p>
+                </div>
             </div>
         </div>
+
+        <div class="participations">
+            <h4>Participations</h4>
+            <ul class="collection">
+                {% for competition in user.competitions %}
+                <li class="collection-item">
+                    <span>{{ competition.name }}</span>
+                    <a href="{{ url_for('competition_details', competition_id=competition.id) }}" class="secondary-content btn blue waves-effect waves-light">View</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Updated leaderboard.html -->
+{% extends "layout.html" %}
+
+{% block title %}Leaderboard{% endblock %}
+{% block page %}Leaderboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="leaderboard-header center-align">
+        <h2>Leaderboard</h2>
     </div>
 
-</body>
-</html>
+    <table class="striped">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in leaderboard %}
+            <tr>
+                <td>{{ user.rank }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.points }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="pagination center-align">
+        {% for page in pagination %}
+        <li class="waves-effect {% if page == current_page %}active{% endif %}">
+            <a href="{{ url_for('leaderboard', page=page) }}">{{ page }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
