@@ -15,10 +15,11 @@
             background-color: #343A40;
             color: white;
             height: 100vh;
+            flex-direction: column;
         }
 
-         /* Top Bar Navigation Styles */
-         .top-bar {
+        /* Top Bar Navigation Styles */
+        .top-bar {
             width: 100%;
             background-color: #00796b;
             padding: 10px 20px;
@@ -30,32 +31,7 @@
             top: 0;
             left: 0;
             z-index: 10;
-            box-sizing: border-box; /* Ensure padding is included in the width */
-        }
-
-        .top-bar .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-right: 20px; /* Add space to the right of the logo */
-        }
-
-        .top-bar nav {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            margin-left: auto; /* Push the navigation to the right */
-        }
-
-        .top-bar nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 15px; /* Space out the links */
-            font-size: 1rem;
-            white-space: nowrap; 
-        }
-
-        .top-bar nav a:hover {
-            text-decoration: underline;
+            box-sizing: border-box;
         }
 
         .container {
@@ -68,39 +44,24 @@
         }
 
         .container h1 {
-            font-family: Optima, sans-serif;
             text-align: center;
             color: #f0f0f0;
             margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
         .form-group label {
             display: block;
-            font-size: 0.9rem;
             margin-bottom: 5px;
         }
 
         .form-group input {
             width: 100%;
             padding: 10px;
+            margin-bottom: 10px;
             border: none;
             border-radius: 5px;
             background: #555;
             color: white;
-            font-size: 0.9rem;
-        }
-
-        .form-group input[type="file"] {
-            padding: 5px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            box-shadow: 0 0 5px #00796b;
         }
 
         .btn {
@@ -120,87 +81,123 @@
             background-color: #005f56;
         }
 
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .action-buttons .btn-small {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
-            font-size: 0.8rem;
-            border-radius: 8px;
-            background-color: #00796b;
-            border: none;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .action-buttons .btn-small:hover {
-            background-color: #005f56;
-        }
-
         .status {
             text-align: center;
-            margin: 20px auto;
-            font-size: 0.9rem;
-            color: #f0f0f0;
+            margin-top: 20px;
+            color: #00c853;
+        }
+
+        iframe {
             width: 100%;
+            height: 500px;
+            border: 1px solid #00796b;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background-color: #bd2130;
         }
     </style>
 </head>
 <body>
-    <!-- Top Bar Navigation -->
     <div class="top-bar">
         <div class="logo">CodeRunners</div>
         <nav>
-            <a href="create_competition.html">Create Competition</a>
-            <a href="competitions_list.html">Competition List</a>
-            <a href="leaderboard.html">Leaderboard</a>
+            <a href="homepage.html">Home</a>
         </nav>
     </div>
     <div class="container">
         <h1>Import Results</h1>
-        <form name="importForm" method="POST" action="/importresults" enctype="multipart/form-data">
+        <form id="importForm" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="file">Upload Results File</label>
-                <input id="file" type="file" name="results_file" required>
+                <label for="file">Upload Results File (.pdf or .docx)</label>
+                <input id="file" type="file" name="results_file" accept=".pdf,.doc,.docx" required>
             </div>
-            <button type="submit" class="btn">Add Submission</button>
+            <button type="button" class="btn" onclick="submitForm()">Add Submission</button>
         </form>
 
-        <div class="status">
-            <h3>Submission Status:</h3>
-            <p>No submissions yet.</p>
-        </div>
-        <div class="status">
-            <h3>Last Modified:</h3>
-            <p>dd/mm/yyyy</p>
+        <div class="status" id="fileStatus" style="display:none;">
+            <p>File was successfully submitted!</p>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn btn-small" onclick="handleEdit()">Edit</button>
-            <button class="btn btn-small" onclick="handleRemove()">Remove</button>
+        <!-- File Viewer -->
+        <iframe id="fileViewer"></iframe>
+
+        <!-- Remove File -->
+        <div class="action-buttons" id="actionButtons" style="display:none;">
+            <button class="remove-btn" onclick="removeFile()">Remove</button>
         </div>
     </div>
 
     <script>
-        function handleEdit() {
-            if (confirm('Are you sure you want to edit this submission?')) {
-                alert('Your submission has been Edited.');
+        function submitForm() {
+            const fileInput = document.getElementById('file');
+            const fileViewer = document.getElementById('fileViewer');
+            const fileStatus = document.getElementById('fileStatus');
+            const actionButtons = document.getElementById('actionButtons');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+
+                // Check the file type
+                const allowedTypes = ['application/pdf', 'application/msword', 
+                                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please upload a valid PDF or Word document.');
+                    return;
+                }
+
+                fileStatus.style.display = 'block';
+
+                // Create an object URL to preview the file
+                const fileURL = URL.createObjectURL(file);
+
+                // Show the file in the inline frame viewer
+                fileViewer.src = fileURL;
+                fileViewer.style.display = 'block';
+
+                actionButtons.style.display = 'flex';
+            } else {
+                alert('Please select a file before submitting.');
             }
         }
 
-        function handleRemove() {
-            if (confirm('Are you sure you want to remove this submission?')) {
-                alert('Submission will be removed permanently.');
-            }
+        function removeFile() {
+            // Clear the form and reset the viewer
+            const fileInput = document.getElementById('file');
+            const fileViewer = document.getElementById('fileViewer');
+            const fileStatus = document.getElementById('fileStatus');
+            const actionButtons = document.getElementById('actionButtons');
+
+            fileInput.value = '';
+            fileViewer.src = '';
+            fileViewer.style.display = 'none';
+            fileStatus.style.display = 'none';
+            actionButtons.style.display = 'none';
+
+            alert('This file will be permanently deleted.');
+            alert('Do you want to remove this File?');
         }
     </script>
 </body>
