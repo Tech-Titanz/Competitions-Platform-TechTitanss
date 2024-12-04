@@ -27,21 +27,21 @@ body, html {
   font-weight: 500;
 }
 
-/* Main Content (Floating Between Navbar and Footer) */
+/* Main Content */
 .main-content {
   position: absolute;
-  top: 100px; /* Adjust for navbar height */
-  bottom: 50px; /* Adjust for footer height */
+  top: 100px; 
+  bottom: 50px; 
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.9);
-  padding: 30px;  /* Reduced padding to shorten content height */
+  padding: 30px; 
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  max-width: 600px; /* Adjusted max width */
-  width: 80%; /* Adjusted width */
+  max-width: 600px; 
+  width: 80%; 
   text-align: center;
-  height: 380px; /* Adjusted height to make it shorter */
+  height: 380px; 
 }
 
 /* Welcome Container */
@@ -96,7 +96,7 @@ body, html {
   color: #333;
   margin-bottom: 20px;
   font-weight: 600;
-  text-align: center; /* Center the title */
+  text-align: center; 
 }
 
 .input-field input {
@@ -255,7 +255,7 @@ body, html {
   text-decoration: underline;
 }
 
-/* Create Competition and Import Results Section Styling */
+/* Competition and Import Results Section Styling */
 .create-competition-section, .import-results-section {
   margin-top: 30px;
   padding: 20px;
@@ -376,7 +376,7 @@ body, html {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Ensures content doesn't overlap footer */
+  justify-content: space-between; /*  content doesn't overlap footer */
 }
 
 /* Main Content */
@@ -387,8 +387,8 @@ body, html {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto; /* Centers the main content */
-  flex-grow: 1; /* Ensures the content takes up remaining space */
+  margin: 0 auto; 
+  flex-grow: 1;
 }
 
 /* Footer */
@@ -400,18 +400,18 @@ body, html {
   font-weight: 500;
   text-align: center;
   width: 100%;
-  position: relative; /* Changed from absolute to relative */
+  position: relative; 
   bottom: 0;
 }
-/* Flexbox for evenly spaced buttons */
+
 .row {
   display: flex;
-  justify-content: center; /* Center the buttons in the row */
-  gap: 1rem; /* Adds space between buttons */
-  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  justify-content: center; 
+  gap: 1rem; 
+  flex-wrap: wrap; 
 }
 
-/* Ensures that buttons' width adjusts with their content */
+
 .col-12, .col-sm-6, .col-md-4 {
   display: flex;
   justify-content: center;
@@ -421,7 +421,7 @@ body, html {
   padding: 15px 25px;
   font-size: 1.2rem;
   text-align: center;
-  min-width: 200px; /* Ensures the buttons are wide enough to fit the text */
+  min-width: 200px; 
 }
 
 .btn-large:hover {
@@ -431,13 +431,13 @@ body, html {
 
 /* Gradient background for buttons */
 .gradient-blue, .gradient-amber {
-  background: linear-gradient(45deg, #2979ff, #0288d1); /* Gradient applied to both */
+  background: linear-gradient(45deg, #2979ff, #0288d1); 
 }
 
 /* Responsive handling on smaller screens */
 @media screen and (max-width: 767px) {
   .col-12 {
-    margin-bottom: 1rem; /* Adds spacing between stacked buttons on small screens */
+    margin-bottom: 1rem; 
   }
 }
 
