@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Competition List</title>
     <style>
+        /* Your CSS styles from previous response */
         body {
             font-family: Helvetica, sans-serif;
             margin: 0;
@@ -18,7 +19,6 @@
             padding-top: 60px; /* Adjusted for fixed top bar */
         }
 
-        /* Top Bar Navigation Styles */
         .top-bar {
             width: 100%;
             background-color: #00796b;
@@ -31,36 +31,34 @@
             top: 0;
             left: 0;
             z-index: 10;
-            box-sizing: border-box; /* Ensure padding is included in the width */
+            box-sizing: border-box;
         }
 
         .top-bar .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            margin-right: 20px; /* Add space to the right of the logo */
+            margin-right: 20px;
         }
 
-        /* Adjust nav to allow space between the logo and links */
         .top-bar nav {
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            margin-left: auto; /* Push the navigation to the right */
+            margin-left: auto;
         }
 
         .top-bar nav a {
             color: white;
             text-decoration: none;
-            margin-left: 15px; /* Space out the links */
+            margin-left: 15px;
             font-size: 1rem;
-            white-space: nowrap; /* Prevent the text from breaking into multiple lines */
+            white-space: nowrap;
         }
 
         .top-bar nav a:hover {
             text-decoration: underline;
         }
 
-        /* Container for the competition list */
         .container {
             width: 90%;
             max-width: 900px;
@@ -68,7 +66,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 80px; /* Adjusted to not overlap with the fixed top bar */
+            margin-top: 80px;
         }
 
         .container h1 {
@@ -160,26 +158,16 @@
     <!-- Main content section -->
     <div class="container">
         <h1>HERE IS A LIST OF COMPETITIONS</h1>
-
-        <!-- Loop through the competitions and display each one dynamically -->
-        {% for competition in competitions %}
-        <div class="competition-item">
-            <div class="details">
-                <h3>{{ competition.name }}</h3>
-                <p>{{ competition.description }}</p>
-            </div>
-            <a href="/competition/{{ competition.id }}" class="view-more-btn">View More</a>
-        </div>
-        {% endfor %}
+        <div id="competitions-list"></div> <!-- Container for dynamically loading competitions -->
     </div>
 
     <!-- Competition details section -->
     <div class="container competition-details" style="display: none;" id="competition-details">
-        <h2>Competition Title 1</h2>
-        <p>Description: </p>
-        <p>Date: 2024-12-15</p>
-        <p>Venue: TBA</p>
-        <p>Registration Deadline: </p>
+        <h2 id="competition-title">Competition Title</h2>
+        <p id="competition-description">Description: </p>
+        <p id="competition-date">Date: </p>
+        <p id="competition-venue">Venue: TBA</p>
+        <p id="competition-deadline">Registration Deadline: </p>
 
         <!-- Apply Button for Joining the Competition -->
         <a href="javascript:void(0);" class="apply-btn" id="apply-button">Join Now</a>
@@ -191,20 +179,74 @@
     </div>
 
     <script>
-        document.querySelectorAll('.view-more-btn').forEach(function(button) {
-            button.addEventListener('click', function(event) {
-                event.preventDefault();
-                const competitionId = event.target.getAttribute('href').split('/')[2];
-                document.querySelector('#competition-details').style.display = 'block';
-            });
+        // Function to fetch and display competitions
+        async function fetchCompetitions() {
+            try {
+                const response = await fetch('/api/competitions'); // API endpoint
+                const competitions = await response.json(); // Parse the JSON response
+                
+                const competitionsList = document.getElementById('competitions-list');
+                
+                // Check if there are any competitions
+                if (competitions.length > 0) {
+                    competitions.forEach(competition => {
+                        // Create a new competition item for each competition
+                        const competitionItem = document.createElement('div');
+                        competitionItem.classList.add('competition-item');
+                        
+                        competitionItem.innerHTML = `
+                            <div class="details">
+                                <h3>${competition.name}</h3>
+                                <p>${competition.description}</p>
+                                <p>Date: ${competition.date}</p>
+                            </div>
+                            <a href="javascript:void(0);" class="view-more-btn" data-id="${competition.id}">View More</a>
+                        `;
+                        
+                        competitionsList.appendChild(competitionItem);
+                    });
+                } else {
+                    competitionsList.innerHTML = '<p>No competitions found.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching competitions:', error);
+                const competitionsList = document.getElementById('competitions-list');
+                competitionsList.innerHTML = '<p>There was an error loading competitions.</p>';
+            }
+        }
+
+        // Event listener to show competition details when 'View More' is clicked
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('view-more-btn')) {
+                const competitionId = event.target.getAttribute('data-id');
+                
+                // Simulate fetching competition details and displaying them
+                // You can modify this logic to fetch detailed data from an API endpoint
+                fetch(`/api/competitions/${competitionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display competition details in the modal
+                        document.getElementById('competition-title').textContent = data.name;
+                        document.getElementById('competition-description').textContent = `Description: ${data.description}`;
+                        document.getElementById('competition-date').textContent = `Date: ${data.date}`;
+                        document.getElementById('competition-venue').textContent = `Venue: ${data.venue || 'TBA'}`;
+                        document.getElementById('competition-deadline').textContent = `Registration Deadline: ${data.deadline || 'TBA'}`;
+                        
+                        // Show the competition details section
+                        document.getElementById('competition-details').style.display = 'block';
+                    });
+            }
         });
 
+        // Apply button functionality
         document.getElementById('apply-button').addEventListener('click', function() {
             this.style.display = 'none';
-
             // Show confirmation message
             document.getElementById('confirmation-message').style.display = 'block';
         });
+
+        // Fetch competitions when the page loads
+        window.onload = fetchCompetitions;
     </script>
 </body>
 </html>

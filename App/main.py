@@ -11,6 +11,7 @@ from App.config import load_config
 
 from App.database import db
 from App.models import Competition
+from App.controllers import *
 
 
 from App.controllers import (
@@ -88,7 +89,7 @@ def signup():
         password = request.form['password']
         
         # Use the register_user function to create a new user
-        user, error = register_user(username, password)
+        user, error = RegisterUserCommand(username, password)
         
         if error:
             flash(error, "error")  # Show error if username exists
@@ -106,14 +107,6 @@ def leaderboard():
     print("Leaderboard route accessed!")
     return render_template('leaderboard.html')
 
-@app.route('/competition_list')
-def list():
-    return render_template('competition_list.html')
-
-@app.route('/competitions')
-def competition_list():
-    competitions = Competition.query.all()  # Get all competitions from the database
-    return render_template('competition_list.html', competitions=competitions)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, render_template, request, abort
 from flask_jwt_extended import jwt_required, current_user as jwt_current_user
 from App.controllers import (
     get_competition, update_competition, delete_competition, 
@@ -205,3 +205,6 @@ def join_competition():
     return jsonify({
         "message": f"User {user.username} successfully joined the competition '{competition.name}'!"
     }), 200
+
+
+
