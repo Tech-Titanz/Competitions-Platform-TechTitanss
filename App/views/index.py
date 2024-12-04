@@ -37,3 +37,12 @@ def profile():
     return render_template('view_profile(m).html', user=user)
 
 
+@index_views.route('/create_competition')
+def creating_competition():
+    return render_template('create_competition.html')
+
+@index_views.route('/import_results')
+def results():
+    return render_template('import_results.html')
+
+
