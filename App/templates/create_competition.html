@@ -64,18 +64,6 @@
             margin-bottom: 20px;
         }
 
-        .error-tooltip {
-            display: none;
-            position: relative;
-            background-color: #f44336;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            margin-bottom: 10px;
-        }
-
         .form-group {
             margin-bottom: 15px;
         }
@@ -133,6 +121,13 @@
             text-align: center;
             display: none;
         }
+
+        .error-message {
+            color: red;
+            font-size: 1rem;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -145,9 +140,11 @@
 
     <div class="container">
         <h1>Create Competition</h1>
-        <div id="errorMessages" class="error-tooltip" style="display: none;"></div>
         <div class="success-message" id="success-message">
             Competition Created! Please click "OK" below to continue.
+        </div>
+        <div class="error-message" id="error-message">
+            Please fill out all required fields.
         </div>
         <form name="addForm" id="competitionForm">
             <div class="form-group">
@@ -192,15 +189,12 @@
             const participants = document.getElementById('participants').value;
             const duration = document.getElementById('duration').value;
 
-            let isValid = true;
-            document.querySelectorAll('.error-tooltip').forEach(error => error.style.display = 'none');
-
             if (!name || !datetime || !description || !participants || !duration) {
-                alert('All fields are required!');
-                isValid = false;
+                document.getElementById('error-message').style.display = 'block';
+                return;
             }
 
-            if (!isValid) return;
+            document.getElementById('error-message').style.display = 'none';
 
             const formData = {
                 name,
@@ -210,31 +204,23 @@
                 duration
             };
 
-            try {
-                const response = await fetch('/api/competitions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
-                    },
-                    body: JSON.stringify(formData)
-                });
+            await fetch('/api/competitions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                },
+                body: JSON.stringify(formData)
+            });
 
-                if (response.status === 201) {
-                    document.getElementById('success-message').style.display = 'block';
-                    document.getElementById('compName').textContent = name;
-                    document.getElementById('compDesc').textContent = description;
-                    document.getElementById('compDate').textContent = datetime;
-                    document.getElementById('compParticipants').textContent = participants;
-                    document.getElementById('compDuration').textContent = duration;
-                    document.getElementById('details').style.display = 'block';
-                    document.getElementById('competitionForm').reset();
-                } else {
-                    alert('Error creating competition.');
-                }
-            } catch (error) {
-                alert('Error creating competition.');
-            }
+            document.getElementById('success-message').style.display = 'block';
+            document.getElementById('compName').textContent = name;
+            document.getElementById('compDesc').textContent = description;
+            document.getElementById('compDate').textContent = datetime;
+            document.getElementById('compParticipants').textContent = participants;
+            document.getElementById('compDuration').textContent = duration;
+            document.getElementById('details').style.display = 'block';
+            document.getElementById('competitionForm').reset();
         }
 
         document.getElementById('confirmBtn').addEventListener('click', function () {
