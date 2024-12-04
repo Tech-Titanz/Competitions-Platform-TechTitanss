@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, jsonify, request, send_from_directory, flash, redirect, url_for
+from flask import Blueprint, render_template, jsonify, request, send_from_directory, flash, redirect, session, url_for
 from flask_jwt_extended import jwt_required, current_user as jwt_current_user
 from sqlalchemy.exc import IntegrityError
+from App.controllers.commands import ViewProfileCommand
 from App.database import db
 from.index import index_views
-from App.models import User
+from App.models import *
 
 from App.controllers import (
     create_user,
@@ -73,10 +74,26 @@ def register():
     return jsonify({"message": "User registered successfully!"}), 201
 
 # routes.py
-@user_views.route('/profile/<int:user_id>', methods=['GET'])
-def view_profile(user_id):
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"message": "User not found"}), 404
 
-    return jsonify(user.get_json()), 200
+@user_views.route('/profile', methods=['GET'])
+def view_profile():
+    user_id = session.get('user_id') 
+
+    command = ViewProfileCommand(user_id)
+    profile_details = command.execute()
+
+    if isinstance(profile_details, tuple): 
+        flash(profile_details[0], 'error')
+        return redirect(url_for('auth_views.login_page'))
+
+    # Unpack profile details
+    username = profile_details["username"]
+    rank = profile_details["rank"]
+    competitions = profile_details["competitions"]
+
+    return render_template('view_profile.html', 
+                           username=username, 
+                           rank=rank, 
+                           competitions=competitions)
+
+
