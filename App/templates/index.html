@@ -8,7 +8,11 @@
     <div class="text-center mb-5">
         <h1 class="welcome-header bg-gradient-teal white-text py-4 px-5 rounded-3">WELCOME TO CODE RUNNERS</h1>
         {% if is_authenticated %}
-            <p class="welcome-subtitle text-darken-2">Welcome, <strong>{{ current_user.username }}</strong>! Let's compete and shine.</p>
+            {% if current_user.is_moderator %}
+                <p class="welcome-subtitle text-darken-2">Welcome, <strong>{{ current_user.username }}</strong>! Let's perform your moderator duties.</p>
+            {% else %}
+                <p class="welcome-subtitle text-darken-2">Welcome, <strong>{{ current_user.username }}</strong>! Let's compete and shine.</p>
+            {% endif %}
         {% else %}
             <p class="welcome-subtitle text-darken-2">Log in to start competing and track your progress.</p>
         {% endif %}
@@ -19,19 +23,24 @@
         <div class="col-12 col-sm-6 col-md-4 mb-4">
             <a href="/leaderboard" class="btn-large waves-effect waves-light gradient-blue">View Leaderboard Results</a>
         </div>
-        <div class="col-12 col-sm-6 col-md-4 mb-4">
-            <a href="/competition_list" class="btn-large waves-effect waves-light gradient-amber">View Competitions</a>
-        </div>
-        <div class="col-12 col-sm-6 col-md-4 mb-4">
-            <a href="/profile" class="btn-large waves-effect waves-light gradient-amber">View Profile</a>
-        </div>
-        <div class="col-12 col-sm-6 col-md-4 mb-4">
-            <a href="/create_competition" class="btn-large waves-effect waves-light gradient-amber">Create Competition</a>
-        </div>
-        <div class="col-12 col-sm-6 col-md-4 mb-4">
-            <a href="/import_results" class="btn-large waves-effect waves-light gradient-amber">Import Results</a>
-        </div>
-    </div>   
+
+        <!-- Only show these buttons for moderators -->
+        {% if current_user.is_moderator %}
+            <div class="col-12 col-sm-6 col-md-4 mb-4">
+                <a href="/create_competition" class="btn-large waves-effect waves-light gradient-amber">Create Competition</a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 mb-4">
+                <a href="/import_results" class="btn-large waves-effect waves-light gradient-amber">Import Results</a>
+            </div>
+        {% else %}
+            <!-- Show this button for regular users -->
+            <div class="col-12 col-sm-6 col-md-4 mb-4">
+                <a href="/competition_list" class="btn-large waves-effect waves-light gradient-amber">View Competitions</a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 mb-4">
+                <a href="/profile" class="btn-large waves-effect waves-light gradient-amber">View Profile</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
-

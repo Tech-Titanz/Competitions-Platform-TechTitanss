@@ -34,15 +34,13 @@
         }
 
         nav ul li a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            color: white; 
+            text-decoration: none; 
+            font-size: 1.1rem;
         }
 
         nav ul li a:hover {
-            background-color: #004d40;
+            text-decoration: underline; 
         }
 
         .container {
@@ -139,6 +137,9 @@
         .secondary-content {
             float: right;
         }
+
+
+
     </style>
 </head>
 <body>
@@ -146,7 +147,6 @@
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="{{ url_for('index_views.profile') }}">Profile</a></li>
         </ul>
     </nav>
 
