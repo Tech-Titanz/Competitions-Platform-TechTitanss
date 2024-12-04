@@ -133,10 +133,25 @@ def view_leaderboard_cli(competition_id):
         click.echo("No leaderboard data found.")
     else:
         click.echo("Leaderboard:")
+        click.echo(f"{'Rank':<5}{'Name':<30}{'Score':<15}{'Events Participated':<20}")
+        click.echo("-" * 70)  # Adds a line separator
+
+        # Process and display leaderboard data
         rank = 1
-        for participant_name, total_score,comp_participate in leaderboard_data:
-            click.echo(f"Rank: {rank}, {participant_name}, Score: {total_score}, {competition_id}, Number of events: {comp_participate}")
+        for participant_name, total_score, comp_participate in leaderboard_data:
+            # Format the leaderboard output in columns
+            click.echo(f"{rank:<5}{participant_name:<30}{total_score:<15}{comp_participate:<20}")
             rank += 1
+
+    # Render the page with the processed leaderboard data
+   # return render_template('leaderboard.html', leaderboard_data=processed_data)
+       
+    #else:
+       # click.echo("Leaderboard:")
+       # rank = 1
+       # for participant_name, total_score,comp_participate in leaderboard_data:
+          #  click.echo(f"Rank: {rank}, {participant_name}, Score: {total_score}, {competition_id}, Number of events: {comp_participate}")
+          #  rank += 1
         
 @competition_cli.command("add_results", help="Add or update results for a user in a competition")
 @click.argument('user_id', type=int)
