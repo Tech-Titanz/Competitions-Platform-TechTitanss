@@ -9,6 +9,9 @@ from werkzeug.datastructures import  FileStorage
 from App.database import init_db
 from App.config import load_config
 
+from App.database import db
+from App.models import Competition
+
 
 from App.controllers import (
     setup_jwt,
@@ -104,8 +107,13 @@ def leaderboard():
     return render_template('leaderboard.html')
 
 @app.route('/competition_list')
-def competition_list():
+def list():
     return render_template('competition_list.html')
+
+@app.route('/competitions')
+def competition_list():
+    competitions = Competition.query.all()  # Get all competitions from the database
+    return render_template('competition_list.html', competitions=competitions)
 
 if __name__ == '__main__':
     app.run(debug=True)

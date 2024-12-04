@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitions Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #eee;
+            border-bottom: 1px solid #ccc;
+        }
+
+        header a {
+            text-decoration: none;
+            color: black;
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-header img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-bottom: 10px;
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .profile-info h2 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-box {
+            text-align: center;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            width: 30%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-box h3 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .stats-box p {
+            margin: 5px 0;
+            font-size: 1.8em;
+            color: #444;
+        }
+
+        .participations {
+            margin-top: 20px;
+        }
+
+        .participations h3 {
+            margin-bottom: 10px;
+        }
+
+        .participation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .participation-item button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .participation-item button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <a href="#">Home</a>
+        <a href="#">Leaderboard</a>
+        <a href="#">Competition Details</a>
+        <div>
+            <span>Amanda</span>
+            <span style="margin-left: 10px;"></span>
+        </div>
+    
+    </header>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <img src="8380015.jpg" alt="Profile Picture">
+            <h2>Amanda Halle</h2>
+            <p>amanda.halle@my.uwi.edu</p>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stats-box">
+                <h3>Rank</h3>
+                <p>1</p>
+            </div>
+            <div class="stats-box">
+                <h3>Total Points</h3>
+                <p>1650</p>
+            </div>
+        </div>
+
+        <div class="participations">
+            <h3>Your Participations</h3>
+
+            <div class="participation-item">
+                <span>Runtime 2022/23 Sem 2</span>
+                <button>Details</button>
+            </div>
+
+            <div class="participation-item">
+                <span>Runtime 2023/24 Sem 1</span>
+                <button>Details</button>
+            </div>
+
+            <div class="participation-item">
+                <span>Runtime 2023/24 Sem 2</span>
+                <button>Details</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+<!-- This is the view profile html -->

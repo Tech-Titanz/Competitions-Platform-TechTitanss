@@ -153,9 +153,7 @@
     <div class="top-bar">
         <div class="logo">CodeRunners</div>
         <nav>
-            <a href="create_competition.html">Create Competition</a>
-            <a href="import_results.html">Import Results</a>
-            <a href="leaderboard.html">Leaderboard</a>
+            <a href="/">Home</a>
         </nav>
     </div>
 
@@ -163,32 +161,16 @@
     <div class="container">
         <h1>HERE IS A LIST OF COMPETITIONS</h1>
 
-        <!-- Competition 1 -->
+        <!-- Loop through the competitions and display each one dynamically -->
+        {% for competition in competitions %}
         <div class="competition-item">
             <div class="details">
-                <h3>Competition Title 1</h3>
-                <p>Join Our Competition!</p>
+                <h3>{{ competition.name }}</h3>
+                <p>{{ competition.description }}</p>
             </div>
-            <a href="/competition/1" class="view-more-btn">View More</a>
+            <a href="/competition/{{ competition.id }}" class="view-more-btn">View More</a>
         </div>
-
-        <!-- Competition 2 -->
-        <div class="competition-item">
-            <div class="details">
-                <h3>Competition Title 2</h3>
-                <p>Come Participate In This Exciting Competition!</p>
-            </div>
-            <a href="/competition/2" class="view-more-btn">View More</a>
-        </div>
-
-        <!-- Competition 3 -->
-        <div class="competition-item">
-            <div class="details">
-                <h3>Competition Title 3</h3>
-                <p>Join Quick Before The Competition Closes!</p>
-            </div>
-            <a href="/competition/3" class="view-more-btn">View More</a>
-        </div>
+        {% endfor %}
     </div>
 
     <!-- Competition details section -->
