@@ -87,14 +87,6 @@
             color: #00c853;
         }
 
-        iframe {
-            width: 100%;
-            height: 500px;
-            border: 1px solid #00796b;
-            margin-top: 20px;
-            display: none;
-        }
-
         .action-buttons {
             display: flex;
             justify-content: center;
@@ -117,6 +109,34 @@
         .remove-btn:hover {
             background-color: #bd2130;
         }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #00796b;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #00796b;
+            color: white;
+        }
+
+        /* Add fixed height and scrolling to the table */
+        #csvTable {
+            height: 300px; /* Adjust this value based on how many rows you want to show before scrolling */
+            overflow-y: auto;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -130,8 +150,8 @@
         <h1>Import Results</h1>
         <form id="importForm" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="file">Upload Results File (.pdf or .docx)</label>
-                <input id="file" type="file" name="results_file" accept=".pdf,.doc,.docx" required>
+                <label for="file">Upload Results File (.csv)</label>
+                <input id="file" type="file" name="results_file" accept=".csv" required>
             </div>
             <button type="button" class="btn" onclick="submitForm()">Add Submission</button>
         </form>
@@ -140,8 +160,10 @@
             <p>File was successfully submitted!</p>
         </div>
 
-        <!-- File Viewer -->
-        <iframe id="fileViewer"></iframe>
+        <!-- Display CSV Content in Table -->
+        <div id="csvContent" style="display:none;">
+            <table id="csvTable"></table>
+        </div>
 
         <!-- Remove File -->
         <div class="action-buttons" id="actionButtons" style="display:none;">
@@ -152,49 +174,74 @@
     <script>
         function submitForm() {
             const fileInput = document.getElementById('file');
-            const fileViewer = document.getElementById('fileViewer');
             const fileStatus = document.getElementById('fileStatus');
             const actionButtons = document.getElementById('actionButtons');
+            const csvContent = document.getElementById('csvContent');
+            const csvTable = document.getElementById('csvTable');
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
 
-                // Check the file type
-                const allowedTypes = ['application/pdf', 'application/msword', 
-                                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-
-                if (!allowedTypes.includes(file.type)) {
-                    alert('Please upload a valid PDF or Word document.');
+                // Check the file type (only allow .csv files)
+                if (file.type !== 'text/csv') {
+                    alert('Please upload a valid CSV file.');
                     return;
                 }
 
                 fileStatus.style.display = 'block';
-
-                // Create an object URL to preview the file
-                const fileURL = URL.createObjectURL(file);
-
-                // Show the file in the inline frame viewer
-                fileViewer.src = fileURL;
-                fileViewer.style.display = 'block';
-
                 actionButtons.style.display = 'flex';
+                csvContent.style.display = 'block';
+
+                // FileReader to read the CSV file
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const rows = text.split('\n').map(row => row.split(','));
+
+                    // Clear the previous table content
+                    csvTable.innerHTML = '';
+
+                    // Create table headers
+                    const headerRow = document.createElement('tr');
+                    rows[0].forEach(cell => {
+                        const th = document.createElement('th');
+                        th.textContent = cell;
+                        headerRow.appendChild(th);
+                    });
+                    csvTable.appendChild(headerRow);
+
+                    // Add table rows
+                    rows.slice(1).forEach(row => {
+                        const tr = document.createElement('tr');
+                        row.forEach(cell => {
+                            const td = document.createElement('td');
+                            td.textContent = cell;
+                            tr.appendChild(td);
+                        });
+                        csvTable.appendChild(tr);
+                    });
+                };
+
+                reader.readAsText(file);
             } else {
                 alert('Please select a file before submitting.');
             }
         }
 
         function removeFile() {
-            // Clear the form and reset the viewer
+            // Clear the form and reset the table
             const fileInput = document.getElementById('file');
-            const fileViewer = document.getElementById('fileViewer');
             const fileStatus = document.getElementById('fileStatus');
             const actionButtons = document.getElementById('actionButtons');
+            const csvContent = document.getElementById('csvContent');
+            const csvTable = document.getElementById('csvTable');
 
             fileInput.value = '';
-            fileViewer.src = '';
-            fileViewer.style.display = 'none';
             fileStatus.style.display = 'none';
             actionButtons.style.display = 'none';
+            csvContent.style.display = 'none';
+            csvTable.innerHTML = ''; // Clear the table
 
             alert('This file will be permanently deleted.');
             alert('Do you want to remove this File?');
