@@ -7,6 +7,7 @@ from App.controllers import (
     get_all_users,
     register_user  # Add the function to register a new user
 )
+from App.models.user import User
 
 auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
@@ -30,19 +31,29 @@ def identify_page():
 @auth_views.route('/login', methods=['POST'])
 def login_action():
     data = request.form
+    # Attempt to log in with the provided username and password
     token = login(data['username'], data['password'])
-    response = redirect(request.referrer)
 
+    # If no token is returned, the login attempt failed
     if not token:
-        flash('Bad username or password given','error')
-        return response
+        flash('Bad username or password given', 'error')
+        return redirect(request.referrer)  # Redirect to the previous page
 
-    session['user'] = data['username']
+    # Query the user by the username to get the user object
+    user = User.query.filter_by(username=data['username']).first()
+
+    if not user:
+        flash('User not found', 'error')
+        return redirect(request.referrer)
+
+ 
+    session['user'] = user.username
     session['user_type'] = 'user'
+    session['user_id'] = user.id  
 
     flash('Login Successful', 'success')
-    reply = redirect(url_for('index_views.index_page'))
-    set_access_cookies(response, token) 
+    response = redirect(url_for('index_views.index_page'))  
+    set_access_cookies(response, token)  
 
     return response
 
