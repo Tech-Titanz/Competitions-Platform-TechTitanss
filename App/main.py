@@ -39,7 +39,7 @@ def create_app(overrides={}):
     app.app_context().push()
     return app
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import request, redirect, url_for, flash, session
 
 # app = Flask(__name__)
 # app = Flask(__name__, static_url_path='/static', template_folder='templates')
@@ -94,16 +94,14 @@ def signup():
             flash("Account created successfully! Please log in.", "success")
             return redirect(url_for('home'))  # Redirect to home after successful signup
 
-@app.route('/dashboard')
-def dashboard():
-    if 'user' not in session:
-        flash("Please log in to access the dashboard.", "warning")
-        return redirect(url_for('login'))
-    return render_template('dashboard.html', username=session['user'])
-
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/leaderboard')
+def leaderboard():
+    print("Leaderboard route accessed!")
+    return render_template('leaderboard.html')
 
 @app.route('/competition_list')
 def competition_list():
