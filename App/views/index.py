@@ -1,5 +1,7 @@
-from flask import Blueprint, redirect, render_template, request, send_from_directory, jsonify
+from flask import Blueprint, redirect, render_template, request, send_from_directory, jsonify, session
 from App.controllers import create_user, initialize
+from App.models import User
+from App.models import Competition
 
 index_views = Blueprint('index_views', __name__, template_folder='../templates')
 
@@ -25,8 +27,13 @@ def leaderboard():
 def list():
     return render_template('competition_list.html')
 
+
 @index_views.route('/profile')
 def profile():
-    return render_template('view_profile.html')
+
+    username = session['user']
+    user = User.query.filter_by(username=username).first()
+
+    return render_template('view_profile(m).html', user=user)
 
 
