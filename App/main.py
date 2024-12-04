@@ -66,13 +66,24 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # Validate credentials
-        if username in users and users[username] == password:
-            session['user'] = username
+
+        # Fetch the user from the database by username
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.password == password:  # Check if user exists and password matches
+            session['user'] = user.username  # Store the username in session
+
+            # Flash message for successful login
             flash("Login successful!", "success")
-            return redirect(url_for('dashboard'))
+
+            # Redirect to the appropriate page based on whether the user is a moderator
+            if user.is_moderator:
+                return redirect(url_for('moderator_dashboard'))  # Redirect to moderator-specific page
+            else:
+                return redirect(url_for('dashboard'))  # Redirect to default user dashboard
         else:
             flash("Invalid credentials. Please try again.", "error")
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -106,6 +117,20 @@ def home():
 def leaderboard():
     print("Leaderboard route accessed!")
     return render_template('leaderboard.html')
+
+@app.route('/moderator_dashboard')
+def moderator_dashboard():
+    # Only accessible by moderators, so check if the user is a moderator
+    if 'user' in session:
+        user = User.query.filter_by(username=session['user']).first()
+        if user and user.is_moderator:
+            return render_template('moderator_dashboard.html', user=user)
+        else:
+            flash("Access denied. You must be a moderator.", "error")
+            return redirect(url_for('login'))  # Redirect non-moderators to login page
+    else:
+        flash("Please log in to access this page.", "error")
+        return redirect(url_for('login'))
 
 
 if __name__ == '__main__':

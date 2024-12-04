@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Competition List</title>
     <style>
-        /* Your CSS styles from previous response */
         body {
             font-family: Helvetica, sans-serif;
             margin: 0;
@@ -16,7 +15,7 @@
             justify-content: center;
             align-items: flex-start;
             height: 100vh;
-            padding-top: 60px; /* Adjusted for fixed top bar */
+            padding-top: 60px;
         }
 
         .top-bar {
@@ -37,14 +36,6 @@
         .top-bar .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            margin-right: 20px;
-        }
-
-        .top-bar nav {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            margin-left: auto;
         }
 
         .top-bar nav a {
@@ -52,7 +43,6 @@
             text-decoration: none;
             margin-left: 15px;
             font-size: 1rem;
-            white-space: nowrap;
         }
 
         .top-bar nav a:hover {
@@ -71,7 +61,6 @@
 
         .container h1 {
             text-align: center;
-            color: #333;
             margin-bottom: 30px;
         }
 
@@ -86,13 +75,8 @@
             align-items: center;
         }
 
-        .competition-item .details {
-            flex: 1;
-        }
-
         .competition-item h3 {
             margin: 0;
-            font-size: 1.2rem;
         }
 
         .competition-item p {
@@ -105,7 +89,6 @@
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            text-decoration: none;
             cursor: pointer;
         }
 
@@ -118,10 +101,7 @@
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
-            text-decoration: none;
             cursor: pointer;
-            display: block;
-            margin-top: 10px;
         }
 
         .apply-btn:hover {
@@ -129,10 +109,10 @@
         }
 
         .competition-details {
+            display: none;
             background-color: #f4f4f4;
             padding: 20px;
             border-radius: 10px;
-            margin-top: 20px;
         }
 
         .confirmation-message {
@@ -147,7 +127,6 @@
     </style>
 </head>
 <body>
-    <!-- Top Bar Navigation -->
     <div class="top-bar">
         <div class="logo">CodeRunners</div>
         <nav>
@@ -155,54 +134,42 @@
         </nav>
     </div>
 
-    <!-- Main content section -->
-    <div class="container">
+    <div class="container" id="competitions-list-container">
         <h1>HERE IS A LIST OF COMPETITIONS</h1>
-        <div id="competitions-list"></div> <!-- Container for dynamically loading competitions -->
+        <div id="competitions-list"></div>
     </div>
 
-    <!-- Competition details section -->
-    <div class="container competition-details" style="display: none;" id="competition-details">
+    <div class="container competition-details" id="competition-details">
         <h2 id="competition-title">Competition Title</h2>
         <p id="competition-description">Description: </p>
         <p id="competition-date">Date: </p>
         <p id="competition-venue">Venue: TBA</p>
         <p id="competition-deadline">Registration Deadline: </p>
-
-        <!-- Apply Button for Joining the Competition -->
         <a href="javascript:void(0);" class="apply-btn" id="apply-button">Join Now</a>
-
-        <!-- Confirmation Message -->
         <div class="confirmation-message" id="confirmation-message">
             You have just applied for this Competition!
         </div>
     </div>
 
     <script>
-        // Function to fetch and display competitions
         async function fetchCompetitions() {
             try {
-                const response = await fetch('/api/competitions'); // API endpoint
-                const competitions = await response.json(); // Parse the JSON response
-                
+                const response = await fetch('/api/competitions');
+                const competitions = await response.json();
                 const competitionsList = document.getElementById('competitions-list');
-                
-                // Check if there are any competitions
+
                 if (competitions.length > 0) {
                     competitions.forEach(competition => {
-                        // Create a new competition item for each competition
                         const competitionItem = document.createElement('div');
                         competitionItem.classList.add('competition-item');
-                        
                         competitionItem.innerHTML = `
-                            <div class="details">
+                            <div>
                                 <h3>${competition.name}</h3>
                                 <p>${competition.description}</p>
                                 <p>Date: ${competition.date}</p>
                             </div>
                             <a href="javascript:void(0);" class="view-more-btn" data-id="${competition.id}">View More</a>
                         `;
-                        
                         competitionsList.appendChild(competitionItem);
                     });
                 } else {
@@ -210,42 +177,31 @@
                 }
             } catch (error) {
                 console.error('Error fetching competitions:', error);
-                const competitionsList = document.getElementById('competitions-list');
-                competitionsList.innerHTML = '<p>There was an error loading competitions.</p>';
             }
         }
 
-        // Event listener to show competition details when 'View More' is clicked
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             if (event.target && event.target.classList.contains('view-more-btn')) {
                 const competitionId = event.target.getAttribute('data-id');
-                
-                // Simulate fetching competition details and displaying them
-                // You can modify this logic to fetch detailed data from an API endpoint
                 fetch(`/api/competitions/${competitionId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Display competition details in the modal
                         document.getElementById('competition-title').textContent = data.name;
                         document.getElementById('competition-description').textContent = `Description: ${data.description}`;
                         document.getElementById('competition-date').textContent = `Date: ${data.date}`;
                         document.getElementById('competition-venue').textContent = `Venue: ${data.venue || 'TBA'}`;
                         document.getElementById('competition-deadline').textContent = `Registration Deadline: ${data.deadline || 'TBA'}`;
-                        
-                        // Show the competition details section
+                        document.getElementById('competitions-list-container').style.display = 'none';
                         document.getElementById('competition-details').style.display = 'block';
                     });
             }
         });
 
-        // Apply button functionality
-        document.getElementById('apply-button').addEventListener('click', function() {
+        document.getElementById('apply-button').addEventListener('click', function () {
             this.style.display = 'none';
-            // Show confirmation message
             document.getElementById('confirmation-message').style.display = 'block';
         });
 
-        // Fetch competitions when the page loads
         window.onload = fetchCompetitions;
     </script>
 </body>
