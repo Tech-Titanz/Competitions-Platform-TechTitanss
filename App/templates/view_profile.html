@@ -53,15 +53,15 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin: 0 auto; /* Center the container */
+            margin: 0 auto; 
         }
 
         .profile-header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 4px solid #00796b; /* Border across the top */
+            border-bottom: 4px solid #00796b; 
             padding-bottom: 20px;
-            background: url("../static/images/profile.png") no-repeat center center fixed; /* Use relative path */
+            background: url("../static/images/profile.png") no-repeat center center fixed;
             background-size: cover;
             height: 200px;
             color: white;
@@ -75,7 +75,7 @@
             transform: translateX(-50%);
             font-size: 2.5em;
             font-weight: bold;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Shadow effect for visibility */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); 
         }
 
         .profile-header .username {
@@ -83,7 +83,7 @@
             font-weight: bold;
             color: #fff;
             margin-top: 10px;
-            text-transform: uppercase; /* Add a more dynamic feel */
+            text-transform: uppercase;
         }
 
         .stats-box {
@@ -152,22 +152,22 @@
 
     <div class="container">
         <div class="profile-container">
-            <!-- Profile header with background image -->
+            
             <div class="profile-header">
-                <h1>{{ username }}</h1> <!-- Username now has a dynamic heading effect -->
+                <h1>{{ user.username }}</h1> 
             </div>
 
             <div class="row">
                 <div class="col s6">
                     <div class="stats-box card-panel center-align">
                         <h5>Rank</h5>
-                        <p>{{ rank if rank else 'Not Ranked' }}</p>
+                        <p>{{ user.rank if user.rank else 'Not Ranked' }}</p>
                     </div>
                 </div>
                 <div class="col s6">
                     <div class="stats-box card-panel center-align">
                         <h5>Total Points</h5>
-                        <p>{{ total_points if total_points else 0 }}</p>
+                        <p>{{ user.total_points if user.total_points else 0 }}</p>
                     </div>
                 </div>
             </div>
