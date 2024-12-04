@@ -121,8 +121,33 @@ def view_competition_participant(competition_id):
         else:
             click.echo(f"Warning: No user found for participant ID {participant.id} (user_id: {participant.user_id}).")
 
+
+from flask import Flask, render_template, request
+
+@app.route('/leaderboard')
+def view_leaderboard():
+    # Get competition_id from URL parameters if needed
+    competition_id = request.args.get('competition_id', None, type=int)
     
-        
+    # Create the ViewLeaderboardCommand instance
+    command = ViewLeaderboardCommand(competition_id=competition_id)
+    leaderboard_data = command.execute()
+
+    # Check if the leaderboard has data
+    if not leaderboard_data:
+        return render_template('leaderboard.html', leaderboard=None)
+
+    # Render the leaderboard template and pass the leaderboard data
+    return render_template('leaderboard.html', leaderboard=leaderboard_data)
+
+
+
+
+
+
+
+    '''
+       
 @competition_cli.command("view_leaderboard", help="View the leaderboard of all users")
 @click.argument('competition_id', default=None, type=int, required=False)
 def view_leaderboard_cli(competition_id):
@@ -153,6 +178,9 @@ def view_leaderboard_cli(competition_id):
           #  click.echo(f"Rank: {rank}, {participant_name}, Score: {total_score}, {competition_id}, Number of events: {comp_participate}")
           #  rank += 1
         
+'''
+
+
 @competition_cli.command("add_results", help="Add or update results for a user in a competition")
 @click.argument('user_id', type=int)
 @click.argument('competition_id', type=int)
