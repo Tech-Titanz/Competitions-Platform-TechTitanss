@@ -34,7 +34,7 @@ def profile():
     username = session['user']
     user = User.query.filter_by(username=username).first()
 
-    return render_template('view_profile(m).html', user=user)
+    return render_template('view_profile.html', user=user)
 
 
 @index_views.route('/create_competition')

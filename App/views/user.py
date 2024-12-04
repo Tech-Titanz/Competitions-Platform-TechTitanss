@@ -91,7 +91,7 @@ def view_profile():
     rank = profile_details["rank"]
     competitions = profile_details["competitions"]
 
-    return render_template('view_profile(m).html', 
+    return render_template('view_profile.html', 
                            username=username, 
                            rank=rank, 
                            competitions=competitions)
