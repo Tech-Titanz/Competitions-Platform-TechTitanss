@@ -46,7 +46,51 @@ class UserUnitTests(unittest.TestCase):
         password = "mypass"
         user = User("bob", password)
         assert user.check_password(password)
+
+
+  
+    def test_password_hashing_consistency(self):
+        password = "bobpass"
+        user1 = User("alice", password)
+        user2 = User("bob", password)
         
+        self.assertTrue(user1.check_password(password))
+        self.assertTrue(user2.check_password(password))
+
+
+
+
+
+'''
+#passes but fails the test_gets_user-json
+    def test_login_with_invalid_credentials(self):
+        create_user("alice", "alicepass")
+        
+        # Try logging in with incorrect password
+        result = login("alice", "wrongpass")
+        self.assertIsNone(result)
+'''
+
+
+
+'''
+    def test_unique_username_constraint(self):
+        # Create a user with the username 'bob'
+        user1 = User("bob", "bobpass")
+        db.session.add(user1)
+        db.session.commit()
+
+        # Try creating another user with the same username 'bob'
+        with self.assertRaises(Exception):  # Modify this according to your exception handling
+            user2 = User("bob", "anotherpassword")
+            db.session.add(user2)
+            db.session.commit()
+    
+'''
+
+
+
+
         
 class CompetitionUnitTests(unittest.TestCase):
     
@@ -105,7 +149,8 @@ class CompetitionUnitTests(unittest.TestCase):
         self.assertIsNone(error)
         self.assertEqual(message, f"Competition with ID {competition.id} has been deleted.")
        
-    
+      
+
 
 '''
     Integration Tests
