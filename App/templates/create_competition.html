@@ -18,7 +18,6 @@
             flex-direction: column;
         }
 
-        /* Top Bar Navigation Styles */
         .top-bar {
             width: 100%;
             background-color: #00796b;
@@ -57,12 +56,24 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             padding: 20px;
-            margin-top: 100px; /* Adjust to avoid overlap with the top bar */
+            margin-top: 100px;
         }
 
         .container h1 {
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        .error-tooltip {
+            display: none;
+            position: relative;
+            background-color: #f44336;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            margin-bottom: 10px;
         }
 
         .form-group {
@@ -114,18 +125,30 @@
         .details p {
             margin: 10px 0;
         }
+
+        .success-message {
+            color: green;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Top Bar Navigation -->
     <div class="top-bar">
         <div class="logo">CodeRunners</div>
         <nav>
-            <a href="/">Home</a>
+            <a href="homepage.html">Home</a>
         </nav>
     </div>
+
     <div class="container">
         <h1>Create Competition</h1>
+        <div id="errorMessages" class="error-tooltip" style="display: none;"></div>
+        <div class="success-message" id="success-message">
+            Competition Created! Please click "OK" below to continue.
+        </div>
         <form name="addForm" id="competitionForm">
             <div class="form-group">
                 <label for="name">Competition Name</label>
@@ -158,37 +181,65 @@
         <p><strong>Date:</strong> <span id="compDate"></span></p>
         <p><strong>Number of Participants:</strong> <span id="compParticipants"></span></p>
         <p><strong>Duration:</strong> <span id="compDuration"></span> hours</p>
-        <button class="btn" id="confirmBtn">Competition Created!</button>
+        <button class="btn" id="confirmBtn">OK</button>
     </div>
 
     <script>
-        function submitForm() {
+        async function submitForm() {
             const name = document.getElementById('name').value;
             const datetime = document.getElementById('datetime').value;
             const description = document.getElementById('description').value;
             const participants = document.getElementById('participants').value;
             const duration = document.getElementById('duration').value;
 
-            // Display the entered details
-            document.getElementById('compName').textContent = name;
-            document.getElementById('compDesc').textContent = description;
-            document.getElementById('compDate').textContent = datetime;  
-            document.getElementById('compParticipants').textContent = participants;
-            document.getElementById('compDuration').textContent = duration;
+            let isValid = true;
+            document.querySelectorAll('.error-tooltip').forEach(error => error.style.display = 'none');
 
-            document.querySelector('.container').style.display = 'none';
-            document.getElementById('details').style.display = 'block';
+            if (!name || !datetime || !description || !participants || !duration) {
+                alert('All fields are required!');
+                isValid = false;
+            }
 
-            const confirmButton = document.getElementById('confirmBtn');
-            confirmButton.onclick = function() {
-                confirmButton.textContent = "Competition Created!";
-                setTimeout(function() {
-                    alert("Competition successfully created!");
-                    // Redirect or clear the form
-                    location.reload();  // Reload page 
-                }, 2000);  
+            if (!isValid) return;
+
+            const formData = {
+                name,
+                date: datetime,
+                description,
+                participants_amount: participants,
+                duration
             };
+
+            try {
+                const response = await fetch('/api/competitions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.status === 201) {
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('compName').textContent = name;
+                    document.getElementById('compDesc').textContent = description;
+                    document.getElementById('compDate').textContent = datetime;
+                    document.getElementById('compParticipants').textContent = participants;
+                    document.getElementById('compDuration').textContent = duration;
+                    document.getElementById('details').style.display = 'block';
+                    document.getElementById('competitionForm').reset();
+                } else {
+                    alert('Error creating competition.');
+                }
+            } catch (error) {
+                alert('Error creating competition.');
+            }
         }
+
+        document.getElementById('confirmBtn').addEventListener('click', function () {
+            window.location.href = '/competitions';
+        });
     </script>
 </body>
 </html>
