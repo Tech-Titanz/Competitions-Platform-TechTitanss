@@ -122,32 +122,7 @@ def view_competition_participant(competition_id):
             click.echo(f"Warning: No user found for participant ID {participant.id} (user_id: {participant.user_id}).")
 
 
-from flask import Flask, render_template, request
-
-@app.route('/leaderboard')
-def view_leaderboard():
-    # Get competition_id from URL parameters if needed
-    competition_id = request.args.get('competition_id', None, type=int)
-    
-    # Create the ViewLeaderboardCommand instance
-    command = ViewLeaderboardCommand(competition_id=competition_id)
-    leaderboard_data = command.execute()
-
-    # Check if the leaderboard has data
-    if not leaderboard_data:
-        return render_template('leaderboard.html', leaderboard=None)
-
-    # Render the leaderboard template and pass the leaderboard data
-    return render_template('leaderboard.html', leaderboard=leaderboard_data)
-
-
-
-
-
-
-
-    '''
-       
+      
 @competition_cli.command("view_leaderboard", help="View the leaderboard of all users")
 @click.argument('competition_id', default=None, type=int, required=False)
 def view_leaderboard_cli(competition_id):
@@ -159,26 +134,16 @@ def view_leaderboard_cli(competition_id):
     else:
         click.echo("Leaderboard:")
         click.echo(f"{'Rank':<5}{'Name':<30}{'Score':<15}{'Events Participated':<20}")
-        click.echo("-" * 70)  # Adds a line separator
+        click.echo("-" * 70) 
 
-        # Process and display leaderboard data
         rank = 1
         for participant_name, total_score, comp_participate in leaderboard_data:
-            # Format the leaderboard output in columns
+          
             click.echo(f"{rank:<5}{participant_name:<30}{total_score:<15}{comp_participate:<20}")
             rank += 1
 
-    # Render the page with the processed leaderboard data
-   # return render_template('leaderboard.html', leaderboard_data=processed_data)
-       
-    #else:
-       # click.echo("Leaderboard:")
-       # rank = 1
-       # for participant_name, total_score,comp_participate in leaderboard_data:
-          #  click.echo(f"Rank: {rank}, {participant_name}, Score: {total_score}, {competition_id}, Number of events: {comp_participate}")
-          #  rank += 1
-        
-'''
+
+
 
 
 @competition_cli.command("add_results", help="Add or update results for a user in a competition")
