@@ -121,30 +121,20 @@
             text-align: center;
             display: none;
         }
-
-        .error-message {
-            color: red;
-            font-size: 1rem;
-            text-align: center;
-            display: none;
-        }
     </style>
 </head>
 <body>
     <div class="top-bar">
         <div class="logo">CodeRunners</div>
         <nav>
-            <a href="homepage.html">Home</a>
+            <a href="/">Home</a>
         </nav>
     </div>
 
     <div class="container">
         <h1>Create Competition</h1>
         <div class="success-message" id="success-message">
-            Competition Created! Please click "OK" below to continue.
-        </div>
-        <div class="error-message" id="error-message">
-            Please fill out all required fields.
+            Competition Created! Redirecting...
         </div>
         <form name="addForm" id="competitionForm">
             <div class="form-group">
@@ -178,7 +168,6 @@
         <p><strong>Date:</strong> <span id="compDate"></span></p>
         <p><strong>Number of Participants:</strong> <span id="compParticipants"></span></p>
         <p><strong>Duration:</strong> <span id="compDuration"></span> hours</p>
-        <button class="btn" id="confirmBtn">OK</button>
     </div>
 
     <script>
@@ -188,13 +177,6 @@
             const description = document.getElementById('description').value;
             const participants = document.getElementById('participants').value;
             const duration = document.getElementById('duration').value;
-
-            if (!name || !datetime || !description || !participants || !duration) {
-                document.getElementById('error-message').style.display = 'block';
-                return;
-            }
-
-            document.getElementById('error-message').style.display = 'none';
 
             const formData = {
                 name,
@@ -213,6 +195,7 @@
                 body: JSON.stringify(formData)
             });
 
+            // Display success message and details
             document.getElementById('success-message').style.display = 'block';
             document.getElementById('compName').textContent = name;
             document.getElementById('compDesc').textContent = description;
@@ -221,11 +204,12 @@
             document.getElementById('compDuration').textContent = duration;
             document.getElementById('details').style.display = 'block';
             document.getElementById('competitionForm').reset();
-        }
 
-        document.getElementById('confirmBtn').addEventListener('click', function () {
-            window.location.href = '/competitions';
-        });
+            // Automatically redirect to competitions page after a delay
+            setTimeout(() => {
+                window.location.href = '/competitions';
+            }, 2000); 
+        }
     </script>
 </body>
 </html>
