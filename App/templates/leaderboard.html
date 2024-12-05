@@ -96,27 +96,81 @@
 
     <div class="container">
         <h1>Leaderboard</h1>
-
+    
+        <button id="refresh-btn" class="refresh-btn">Refresh Leaderboard</button>
+    
         <table>
             <thead>
                 <tr>
                     <th>Rank</th>
                     <th>Name</th>
-                    <th>Score</th>
-                    <th>Events Participated</th>
+                    <th>Total Score</th>
+                    <th>Competitions Participated</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for participant in leaderboard_data %}
-                <tr>
-                    <td>{{ participant.rank }}</td>
-                    <td>{{ participant.participant_name }}</td>
-                    <td>{{ participant.total_score }} pts</td>
-                    <td>{{ participant.comp_participate }}</td>
-                </tr>
-                {% endfor %}
+            <tbody id="leaderboard-body">
+                <!-- Data will be dynamically inserted here -->
             </tbody>
         </table>
     </div>
+    
+    <script>
+        // Function to fetch leaderboard data
+        function fetchLeaderboard() {
+            fetch('/api/leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('leaderboard-body');
+                    tbody.innerHTML = ''; // Clear existing data
+    
+                    const leaderboard = data.leaderboard;
+                    leaderboard.forEach(participant => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${participant.rank}</td>
+                            <td>${participant.name}</td>
+                            <td>${participant.total_score} pts</td>
+                            <td>${participant.competitions_participated}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching leaderboard:', error);
+                });
+        }
+    
+        // Event listener for the refresh button
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            // Optionally disable the button and show a loading message
+            const button = this;
+            button.disabled = true;
+            button.textContent = 'Refreshing...';
+    
+            // Send request to recalculate leaderboard data
+            fetch('/api/calculate_aggregate', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        // After successful recalculation, re-fetch the leaderboard data
+                        fetchLeaderboard();
+                    } else {
+                        alert('Failed to recalculate leaderboard');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error recalculating aggregate:', error);
+                })
+                .finally(() => {
+                    // Re-enable the button after the refresh operation is done
+                    button.disabled = false;
+                    button.textContent = 'Refresh Leaderboard';
+                });
+        });
+    
+        // Initially fetch leaderboard when the page loads
+        fetchLeaderboard();
+    </script>
+    
+    
 </body>
 </html>

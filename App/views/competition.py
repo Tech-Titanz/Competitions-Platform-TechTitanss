@@ -162,17 +162,35 @@ def upload_results_endpoint():
         return jsonify({'message': f"Error uploading results: {str(e)}"}), 500
 
 @competition_views.route('/api/leaderboard', methods=['GET'])
-def leaderboard_endpoint():
-    results = Result.query.order_by(Result.score.desc()).all()
+def get_leaderboard():
+    competition_id = request.args.get('competition_id', type=int)
+
+
+    command = ViewLeaderboardCommand(competition_id)
+    leaderboard_data = command.execute()
+
     leaderboard = [
         {
-            'username': User.query.get(result.user_id).username,
-            'competition': Competition.query.get(result.competition_id).name,
-            'score': result.score
+            "rank": idx + 1,
+            "name": participant[0],
+            "total_score": participant[1],
+            "competitions_participated": participant[2]
         }
-        for result in results
+        for idx, participant in enumerate(leaderboard_data)
     ]
-    return jsonify({'leaderboard': leaderboard}), 200
+    return jsonify({"leaderboard": leaderboard}), 200
+
+
+@competition_views.route('/api/calculate_aggregate', methods=['POST'])
+def calculate_aggregate():
+  
+    try:
+        aggregate_command = AggregateProfileCommand()
+        aggregate_command.execute()  
+
+        return jsonify({"message": "Leaderboard recalculated successfully!"}), 200
+    except Exception as e:
+        return jsonify({"message": f"Error recalculating leaderboard: {str(e)}"}), 500
 
 
 @competition_views.route('/api/competitions/join', methods=['POST'])
